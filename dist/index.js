@@ -61,7 +61,8 @@ var __privateSet = (obj, member, value, setter) => {
 // src/index.ts
 var src_exports = {};
 __export(src_exports, {
-  Document: () => Document_default
+  Document: () => Document_default,
+  elements: () => elements_exports
 });
 module.exports = __toCommonJS(src_exports);
 
@@ -98,6 +99,29 @@ var ElementTypes = /* @__PURE__ */ ((ElementTypes2) => {
   return ElementTypes2;
 })(ElementTypes || {});
 var ElementTypes_default = ElementTypes;
+
+// src/elements/index.ts
+var elements_exports = {};
+__export(elements_exports, {
+  Audio: () => Audio_default,
+  BackgroundAudio: () => BackgroundAudio_default,
+  Bookmark: () => Bookmark_default,
+  Break: () => Break_default,
+  Element: () => Element_default,
+  ExpressAs: () => ExpressAs_default,
+  Language: () => Language_default,
+  Lexicon: () => Lexicon_default,
+  Paragraph: () => Paragraph_default,
+  Phoneme: () => Phoneme_default,
+  Prosody: () => Prosody_default,
+  Raw: () => Raw_default,
+  SayAs: () => SayAs_default,
+  Sentence: () => Sentence_default,
+  Silence: () => Silence_default,
+  Subsitute: () => Subsitute_default,
+  Voice: () => Voice_default,
+  Word: () => Word_default
+});
 
 // src/enums/Providers.ts
 var Providers = /* @__PURE__ */ ((Providers2) => {
@@ -792,7 +816,7 @@ var _Document = class {
   xmlns = "";
   effect;
   effectValue;
-  format;
+  format = "";
   sampleRate;
   children = [];
   constructor(options = {}) {
@@ -854,7 +878,7 @@ var _Document = class {
           backgroundAudio = voice.find("backgroundaudio") || this.find("backgroundaudio");
           speak.att("voice", voice.name);
         }
-        this.format && speak.att("encodeType", this.format);
+        speak.att("encodeType", this.format);
         this.sampleRate && speak.att("sampleRate", this.sampleRate);
         this.effect && speak.att("effect", this.effect);
         this.effectValue && speak.att("effectValue", this.effectValue);
@@ -918,5 +942,6 @@ __publicField(Document, "type", "document");
 var Document_default = Document;
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  Document
+  Document,
+  elements
 });

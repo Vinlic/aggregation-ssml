@@ -27,7 +27,7 @@ class Document {
     public xmlns = '';  //文档URI
     public effect?: string;  //发音效果器
     public effectValue?: string;  //发音效果器值
-    public format?: string;  //发音音频文件格式
+    public format = '';  //发音音频文件格式
     public sampleRate?: string;  //发音音频采样率
     public children: Element[] = [];  //文档子元素
 
@@ -95,7 +95,7 @@ class Document {
                     backgroundAudio = (voice.find("backgroundaudio") || this.find("backgroundaudio")) as BackgroundAudio;
                     speak.att("voice", voice.name);
                 }
-                this.format && speak.att("encodeType", this.format);
+                speak.att("encodeType", this.format);
                 this.sampleRate && speak.att("sampleRate", this.sampleRate);
                 this.effect && speak.att("effect", this.effect);
                 this.effectValue && speak.att("effectValue", this.effectValue);
