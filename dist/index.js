@@ -887,7 +887,7 @@ var _Document = class {
     if (util_default.isObject(content))
       return new _Document(content);
     if (!/\<speak/.test(content))
-      return JSON.parse(content);
+      return new _Document(JSON.parse(content));
     let xmlObject;
     xmlParser.parse(content).forEach((o) => {
       if (o.speak)

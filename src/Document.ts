@@ -126,7 +126,7 @@ class Document {
     public static parse(content: any) {
         if (!util.isString(content) && !util.isObject(content)) throw new TypeError('content must be an string or object');
         if (util.isObject(content)) return new Document(content);
-        if (!/\<speak/.test(content)) return JSON.parse(content);
+        if (!/\<speak/.test(content)) return new Document(JSON.parse(content));
         let xmlObject: any;
         xmlParser.parse(content).forEach((o: any) => {
             if (o.speak) xmlObject = o;

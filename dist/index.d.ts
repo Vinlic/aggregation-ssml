@@ -76,7 +76,7 @@ declare class Document {
     find(path: string): Document | Element | undefined;
     appendChild(node: Element): void;
     toSSML(pretty?: boolean): string;
-    static parse(content: any): any;
+    static parse(content: any): Document;
 }
 
 export { Document };
