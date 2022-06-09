@@ -913,6 +913,7 @@ var _Document = class {
   }
 };
 var Document = _Document;
+__publicField(Document, "Provider", Providers_default);
 __publicField(Document, "type", "document");
 var Document_default = Document;
 // Annotate the CommonJS export names for ESM import in node:

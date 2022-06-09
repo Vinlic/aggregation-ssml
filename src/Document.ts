@@ -17,6 +17,7 @@ const xmlParser = new XMLParser({
 });
 
 class Document {
+    public static Provider = Providers;
 
     public static readonly type = 'document'; // type标识
     public type = ''; // 文档type必须为document

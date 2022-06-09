@@ -60,6 +60,7 @@ declare class Element {
 }
 
 declare class Document {
+    static Provider: typeof Providers;
     static readonly type = "document";
     type: string;
     provider: Providers;
