@@ -21,16 +21,38 @@ var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
+var __accessCheck = (obj, member, msg) => {
+  if (!member.has(obj))
+    throw TypeError("Cannot " + msg);
+};
+var __privateGet = (obj, member, getter) => {
+  __accessCheck(obj, member, "read from private field");
+  return getter ? getter.call(obj) : member.get(obj);
+};
+var __privateAdd = (obj, member, value) => {
+  if (member.has(obj))
+    throw TypeError("Cannot add the same private member more than once");
+  member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+};
+var __privateSet = (obj, member, value, setter) => {
+  __accessCheck(obj, member, "write to private field");
+  setter ? setter.call(obj, value) : member.set(obj, value);
+  return value;
+};
 
 // src/Document.ts
 import { create } from "xmlbuilder2";
+import { XMLParser } from "fast-xml-parser";
 
 // src/enums/ElementTypes.ts
 var ElementTypes = /* @__PURE__ */ ((ElementTypes2) => {
   ElementTypes2["Element"] = "element";
+  ElementTypes2["Raw"] = "raw";
   ElementTypes2["Voice"] = "voice";
   ElementTypes2["Language"] = "language";
+  ElementTypes2["p"] = "p";
   ElementTypes2["Paragraph"] = "paragraph";
+  ElementTypes2["s"] = "s";
   ElementTypes2["Sentence"] = "sentence";
   ElementTypes2["Break"] = "break";
   ElementTypes2["Phoneme"] = "phoneme";
@@ -40,9 +62,13 @@ var ElementTypes = /* @__PURE__ */ ((ElementTypes2) => {
   ElementTypes2["Audio"] = "audio";
   ElementTypes2["Bookmark"] = "bookmark";
   ElementTypes2["Subsitute"] = "subsitute";
+  ElementTypes2["w"] = "w";
   ElementTypes2["Word"] = "word";
+  ElementTypes2["backgroundaudio"] = "backgroundaudio";
   ElementTypes2["BackgroundAudio"] = "backgroundAudio";
+  ElementTypes2["mstts:express-as"] = "mstts:express-as";
   ElementTypes2["ExpressAs"] = "expressAs";
+  ElementTypes2["mstts:silence"] = "mstts:silence";
   ElementTypes2["Silence"] = "silence";
   return ElementTypes2;
 })(ElementTypes || {});
@@ -182,24 +208,23 @@ var util_default = __spreadProps(__spreadValues({}, lodash), {
 });
 
 // src/elements/Element.ts
+var _parent;
 var _Element = class {
-  type = ElementTypes_default.Element;
-  tagName = "element";
-  value;
-  parent;
-  children = [];
   constructor(options, type = ElementTypes_default.Element) {
+    __publicField(this, "type", ElementTypes_default.Element);
+    __publicField(this, "value");
+    __publicField(this, "children", []);
+    __privateAdd(this, _parent, void 0);
     if (!util_default.isObject(options))
       throw new TypeError("options must be an object");
+    this.type = type;
     util_default.optionsInject(this, options, {
-      type: (v) => util_default.defaultTo(v, type),
       children: (datas) => util_default.isArray(datas) ? datas.map((options2) => {
         const node = _Element.isInstance(options2) ? options2 : ElementFactory_default.createElement(options2);
         node.parent = this;
         return node;
       }) : []
     }, {
-      type: (v) => util_default.isString(v),
       value: (v) => util_default.isUndefined(v) || util_default.isString(v),
       children: (v) => util_default.isArray(v)
     });
@@ -224,24 +249,36 @@ var _Element = class {
   }
   render(parent, provider) {
     const tagName = TagNameMap_default[provider] ? TagNameMap_default[provider][this.type] : null;
-    if (!tagName)
-      return parent;
-    const element = parent.ele(tagName);
-    this.children.forEach((node) => {
-      if (util_default.isString(node))
-        element.txt(node);
-      else
-        node.render(element, provider);
-    });
+    const element = tagName ? parent.ele(tagName) : parent;
+    this.value && element.txt(this.value);
+    this.children.forEach((node) => node.render(element, provider));
     return element;
   }
   static isInstance(value) {
     return value instanceof _Element;
   }
+  set parent(obj) {
+    __privateSet(this, _parent, obj);
+  }
+  get parent() {
+    return __privateGet(this, _parent);
+  }
 };
 var Element = _Element;
+_parent = new WeakMap();
 __publicField(Element, "Type", ElementTypes_default);
 var Element_default = Element;
+
+// src/elements/Raw.ts
+var Raw = class extends Element_default {
+  constructor(options, type = ElementTypes_default.Raw) {
+    super(options, type);
+  }
+  render(parent, provider) {
+    return super.render(parent, provider);
+  }
+};
+var Raw_default = Raw;
 
 // src/elements/Audio.ts
 var Audio = class extends Element_default {
@@ -617,14 +654,64 @@ var Word = class extends Element_default {
 };
 var Word_default = Word;
 
+// src/elements/ExpressAs.ts
+var ExpressAs = class extends Element_default {
+  style = "";
+  styledegree;
+  role;
+  constructor(options, type = ElementTypes_default.ExpressAs) {
+    super(options, type);
+    util_default.optionsInject(this, options, {
+      styledegree: (v) => !util_default.isUndefined(v) ? Number(v) : v
+    }, {
+      style: (v) => util_default.isString(v),
+      styledegree: (v) => util_default.isUndefined(v) || util_default.isFinite(v),
+      role: (v) => util_default.isUndefined(v) || util_default.isString(v)
+    });
+  }
+  render(parent, provider) {
+    const element = super.render(parent, provider);
+    element.att("style", this.style);
+    element.att("styledegree", this.styledegree);
+    element.att("role", this.role);
+    return element;
+  }
+};
+var ExpressAs_default = ExpressAs;
+
+// src/elements/Silence.ts
+var Silence = class extends Element_default {
+  _type = "";
+  _value = "";
+  constructor(options, type = ElementTypes_default.Silence) {
+    super(options, type);
+    options._type = options.type;
+    options._value = options.value;
+    util_default.optionsInject(this, options, {}, {
+      _type: (v) => util_default.isString(v),
+      _value: (v) => util_default.isString(v)
+    });
+  }
+  render(parent, provider) {
+    const element = super.render(parent, provider);
+    element.att("type", this._type);
+    element.att("value", this._value);
+    return element;
+  }
+};
+var Silence_default = Silence;
+
 // src/ElementFactory.ts
 var ElementFactory = class {
   static createElement(data) {
     if (!util_default.isObject(data))
       throw new TypeError("data must be an Object");
     switch (data.type) {
+      case ElementTypes_default.Raw:
+        return new Raw_default(data);
       case ElementTypes_default.Audio:
         return new Audio_default(data);
+      case ElementTypes_default.backgroundaudio:
       case ElementTypes_default.BackgroundAudio:
         return new BackgroundAudio_default(data);
       case ElementTypes_default.Bookmark:
@@ -635,6 +722,7 @@ var ElementFactory = class {
         return new Language_default(data);
       case ElementTypes_default.Lexicon:
         return new Lexicon_default(data);
+      case ElementTypes_default.p:
       case ElementTypes_default.Paragraph:
         return new Paragraph_default(data);
       case ElementTypes_default.Phoneme:
@@ -643,14 +731,22 @@ var ElementFactory = class {
         return new Prosody_default(data);
       case ElementTypes_default.SayAs:
         return new SayAs_default(data);
+      case ElementTypes_default.s:
       case ElementTypes_default.Sentence:
         return new Sentence_default(data);
       case ElementTypes_default.Subsitute:
         return new Subsitute_default(data);
       case ElementTypes_default.Voice:
         return new Voice_default(data);
+      case ElementTypes_default.w:
       case ElementTypes_default.Word:
         return new Word_default(data);
+      case ElementTypes_default["mstts:express-as"]:
+      case ElementTypes_default.ExpressAs:
+        return new ExpressAs_default(data);
+      case ElementTypes_default["mstts:silence"]:
+      case ElementTypes_default.Silence:
+        return new Silence_default(data);
     }
     return new Element_default(data);
   }
@@ -658,7 +754,14 @@ var ElementFactory = class {
 var ElementFactory_default = ElementFactory;
 
 // src/Document.ts
-var Document = class {
+var xmlParser = new XMLParser({
+  allowBooleanAttributes: true,
+  ignoreAttributes: false,
+  attributeNamePrefix: "",
+  preserveOrder: true,
+  parseTagValue: false
+});
+var _Document = class {
   type = "";
   provider = Providers_default.Unknown;
   version = "";
@@ -719,10 +822,74 @@ var Document = class {
     speak.att("version", this.version);
     speak.att("xml:lang", this.language);
     speak.att("xmlns", this.xmlns);
+    switch (this.provider) {
+      case Providers_default.Aliyun:
+        const voice = this.find("voice");
+        let prosody, backgroundAudio;
+        if (voice) {
+          prosody = voice.find("prosody") || this.find("prosody");
+          backgroundAudio = voice.find("backgroundaudio") || this.find("backgroundaudio");
+          speak.att("voice", voice.name);
+        }
+        this.format && speak.att("encodeType", this.format);
+        this.sampleRate && speak.att("sampleRate", this.sampleRate);
+        this.effect && speak.att("effect", this.effect);
+        this.effectValue && speak.att("effectValue", this.effectValue);
+        if (prosody) {
+          if (prosody.rate) {
+            const rate = prosody.rate * 500 - 500;
+            speak.att("rate", (rate > 500 ? 500 : rate).toString());
+          }
+          if (prosody.pitch) {
+            const pitch = prosody.pitch * 500 - 500;
+            speak.att("pitch", (pitch > 500 ? 500 : pitch).toString());
+          }
+          prosody.volume && speak.att("volume", parseInt((prosody.volume / 2).toString()).toString());
+        }
+        if (backgroundAudio) {
+          speak.att("bgm", backgroundAudio.src);
+          backgroundAudio.volume && speak.att("volume", parseInt((backgroundAudio.volume * 100 / 2).toString()).toString());
+        }
+        break;
+      case Providers_default.Microsoft:
+        speak.att("xmlns:mstts", "https://www.w3.org/2001/mstts");
+        break;
+    }
     this.children.forEach((node) => node.render(speak, this.provider));
     return speak.end({ prettyPrint: pretty, headless: true });
   }
+  static parse(content) {
+    if (!util_default.isString(content) && !util_default.isObject(content))
+      throw new TypeError("content must be an string or object");
+    if (util_default.isObject(content))
+      return new _Document(content);
+    if (!/\<speak/.test(content))
+      return JSON.parse(content);
+    let xmlObject;
+    xmlParser.parse(content).forEach((o) => {
+      if (o.speak)
+        xmlObject = o;
+    });
+    if (!xmlObject)
+      throw new Error("document ssml invalid");
+    function parse(obj, target = {}) {
+      const type = Object.keys(obj)[0];
+      target.type = type;
+      for (let key in obj[":@"])
+        target[key] = obj[":@"][key];
+      target.children = [];
+      obj[type].forEach((v) => {
+        if (v["#text"])
+          return target.children.push({ type: "raw", value: v["#text"] });
+        const result = parse(v, {});
+        result && target.children.push(result);
+      });
+      return target;
+    }
+    return new _Document(parse(xmlObject));
+  }
 };
+var Document = _Document;
 __publicField(Document, "type", "document");
 var Document_default = Document;
 export {

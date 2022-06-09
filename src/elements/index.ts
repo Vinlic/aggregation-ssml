@@ -1,4 +1,5 @@
 export { default as Element } from './Element';
+export { default as Raw } from './Raw';
 export { default as Audio } from './Audio';
 export { default as BackgroundAudio } from './BackgroundAudio';
 export { default as Bookmark } from './Bookmark';
@@ -13,3 +14,5 @@ export { default as Sentence } from './Sentence';
 export { default as Subsitute } from './Subsitute';
 export { default as Voice } from './Voice';
 export { default as Word } from './Word';
+export { default as ExpressAs } from './ExpressAs';
+export { default as Silence } from './Silence';

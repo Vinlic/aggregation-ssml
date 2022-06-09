@@ -1,8 +1,11 @@
 declare enum ElementTypes {
     Element = "element",
+    Raw = "raw",
     Voice = "voice",
     Language = "language",
+    p = "p",
     Paragraph = "paragraph",
+    s = "s",
     Sentence = "sentence",
     Break = "break",
     Phoneme = "phoneme",
@@ -12,9 +15,13 @@ declare enum ElementTypes {
     Audio = "audio",
     Bookmark = "bookmark",
     Subsitute = "subsitute",
+    w = "w",
     Word = "word",
+    backgroundaudio = "backgroundaudio",
     BackgroundAudio = "backgroundAudio",
+    "mstts:express-as" = "mstts:express-as",
     ExpressAs = "expressAs",
+    "mstts:silence" = "mstts:silence",
     Silence = "silence"
 }
 
@@ -38,17 +45,18 @@ declare enum Providers {
 }
 
 declare class Element {
+    #private;
     static Type: typeof ElementTypes;
     type: ElementTypes;
-    tagName: string;
     value?: string;
-    parent?: Document | Element;
     children: Element[];
     constructor(options: IElementOptions, type?: ElementTypes);
     find(path: string): Element;
     appendChild(node: Element): void;
     render(parent: any, provider: Providers): any;
     static isInstance(value: any): boolean;
+    set parent(obj: Document | Element | undefined);
+    get parent(): Document | Element | undefined;
 }
 
 declare class Document {
@@ -64,9 +72,10 @@ declare class Document {
     sampleRate?: string;
     children: Element[];
     constructor(options?: {});
-    find(path: string): Document;
+    find(path: string): Document | Element | undefined;
     appendChild(node: Element): void;
     toSSML(pretty?: boolean): string;
+    static parse(content: any): any;
 }
 
 export { Document };

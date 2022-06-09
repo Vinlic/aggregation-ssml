@@ -4,9 +4,17 @@ import { XMLParser } from 'fast-xml-parser';
 import IElementOptions from './elements/interface/IElementOptions';
 
 import ElementFactory from './ElementFactory';
-import Element from './elements/Element';
+import { BackgroundAudio, Element, Prosody, Voice } from './elements';
 import Providers from './enums/Providers';
 import util from './util';
+
+const xmlParser = new XMLParser({
+    allowBooleanAttributes: true, //需要解析布尔值属性
+    ignoreAttributes: false, //不要忽略属性
+    attributeNamePrefix: '', //属性名称不拼接前缀
+    preserveOrder: true, //保持原始文档标签顺序
+    parseTagValue: false //不解析标签内值
+});
 
 class Document {
 
@@ -51,7 +59,7 @@ class Document {
         });
     }
 
-    public find(path: string) {
+    public find(path: string): Document | Element | undefined {
         const keys = path.split(".");
         let that: Document | Element | undefined = this;
         keys.forEach(key => {
@@ -77,6 +85,39 @@ class Document {
         speak.att('version', this.version);
         speak.att("xml:lang", this.language);
         speak.att("xmlns", this.xmlns);
+        switch(this.provider) {
+            case Providers.Aliyun:
+                const voice = this.find("voice") as Voice;
+                let prosody, backgroundAudio;
+                if(voice) {
+                    prosody = (voice.find("prosody") || this.find("prosody")) as Prosody;
+                    backgroundAudio = (voice.find("backgroundaudio") || this.find("backgroundaudio")) as BackgroundAudio;
+                    speak.att("voice", voice.name);
+                }
+                this.format && speak.att("encodeType", this.format);
+                this.sampleRate && speak.att("sampleRate", this.sampleRate);
+                this.effect && speak.att("effect", this.effect);
+                this.effectValue && speak.att("effectValue", this.effectValue);
+                if(prosody) {
+                    if(prosody.rate) {
+                        const rate = prosody.rate * 500 - 500;
+                        speak.att("rate", (rate > 500 ? 500 : rate).toString());
+                    }
+                    if(prosody.pitch) {
+                        const pitch = prosody.pitch * 500 - 500;
+                        speak.att("pitch", (pitch > 500 ? 500 : pitch).toString());
+                    }
+                    prosody.volume && speak.att("volume", parseInt((prosody.volume / 2).toString()).toString());
+                }
+                if(backgroundAudio) {
+                    speak.att("bgm", backgroundAudio.src);
+                    backgroundAudio.volume && speak.att("volume", parseInt((backgroundAudio.volume * 100 / 2).toString()).toString());
+                }
+            break;
+            case Providers.Microsoft:
+                speak.att("xmlns:mstts", "https://www.w3.org/2001/mstts");
+            break;
+        }
         this.children.forEach(node => node.render(speak, this.provider));
         return speak.end({ prettyPrint: pretty, headless: true });
     }
@@ -85,7 +126,25 @@ class Document {
         if (!util.isString(content) && !util.isObject(content)) throw new TypeError('content must be an string or object');
         if (util.isObject(content)) return new Document(content);
         if (!/\<speak/.test(content)) return JSON.parse(content);
-        
+        let xmlObject: any;
+        xmlParser.parse(content).forEach((o: any) => {
+            if (o.speak) xmlObject = o;
+        });
+        if (!xmlObject) throw new Error('document ssml invalid');
+        function parse(obj: any, target: any = {}) {
+            const type = Object.keys(obj)[0];
+            target.type = type;
+            for (let key in obj[':@'])
+                target[key] = obj[':@'][key];
+            target.children = [];
+            obj[type].forEach((v: any) => {
+                if (v['#text']) return target.children.push({ type: "raw", value: v['#text'] });
+                const result = parse(v, {});
+                result && target.children.push(result);
+            });
+            return target;
+        }
+        return new Document(parse(xmlObject));
     }
 
 }

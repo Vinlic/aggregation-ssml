@@ -12,15 +12,14 @@ class Element {
     public static Type = ElementTypes;
 
     public type: ElementTypes = ElementTypes.Element; //元素类型
-    public tagName = 'element';  //元素标签名称
     public value?: string;  //元素节点值
-    public parent?: Document | Element;  //父级指针
     public children: Element[] = [];  //元素子节点
+    #parent?: Document | Element;  //父级指针
 
     constructor(options: IElementOptions, type = ElementTypes.Element) {
         if(!util.isObject(options)) throw new TypeError('options must be an object');
+        this.type = type;
         util.optionsInject(this, options, {
-            type: (v: any) => util.defaultTo(v, type),
             children: (datas: IElementOptions[]) =>
                 util.isArray(datas)
                     ? datas.map(options => {
@@ -30,7 +29,6 @@ class Element {
                     })
                     : [], //实例化子节点
         }, {
-            type: (v: any) => util.isString(v),
             value: (v: any) => util.isUndefined(v) || util.isString(v),
             children: (v: any) => util.isArray(v)
         });
@@ -58,19 +56,22 @@ class Element {
 
     public render(parent: any, provider: Providers) {
         const tagName = TagNameMap[provider] ? TagNameMap[provider][this.type] : null;
-        if(!tagName) return parent;
-        const element = parent.ele(tagName);
-        this.children.forEach(node => {
-            if(util.isString(node))
-                element.txt(node);
-            else
-                node.render(element, provider);
-        });
+        const element = tagName ? parent.ele(tagName) : parent;
+        this.value && element.txt(this.value);
+        this.children.forEach(node => node.render(element, provider));
         return element;
     }
 
     public static isInstance(value: any) {
         return value instanceof Element;
+    }
+
+    public set parent(obj: Document | Element | undefined) {
+        this.#parent = obj;
+    }
+
+    public get parent() {
+        return this.#parent;
     }
 
 }
