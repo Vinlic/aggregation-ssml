@@ -1,11 +1,7 @@
 import lodash from "lodash"
 
-import { v1 as uuid } from "uuid";
-
 export default {
   ...lodash,
-
-  uuid: (separator: boolean = true): string => (separator ? uuid() : uuid().replace(/\-/g, '')),
 
   optionsInject(that: any, options: any, initializers: any = {}, checkers: any = {}) {
     Object.keys(that).forEach((key) => {

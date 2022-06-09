@@ -147,9 +147,7 @@ var TagNameMap_default = {
 
 // src/util.ts
 var import_lodash = __toESM(require("lodash"));
-var import_uuid = require("uuid");
 var util_default = __spreadProps(__spreadValues({}, import_lodash.default), {
-  uuid: (separator = true) => separator ? (0, import_uuid.v1)() : (0, import_uuid.v1)().replace(/\-/g, ""),
   optionsInject(that, options, initializers = {}, checkers = {}) {
     Object.keys(that).forEach((key) => {
       if (/^\_/.test(key))

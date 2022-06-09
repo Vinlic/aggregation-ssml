@@ -122,9 +122,7 @@ var TagNameMap_default = {
 
 // src/util.ts
 import lodash from "lodash";
-import { v1 as uuid } from "uuid";
 var util_default = __spreadProps(__spreadValues({}, lodash), {
-  uuid: (separator = true) => separator ? uuid() : uuid().replace(/\-/g, ""),
   optionsInject(that, options, initializers = {}, checkers = {}) {
     Object.keys(that).forEach((key) => {
       if (/^\_/.test(key))
