@@ -37,6 +37,7 @@ class ElementFactory {
                 return new Phoneme(data);
             case ElementTypes.Prosody:
                 return new Prosody(data);
+            case ElementTypes["say-as"]:
             case ElementTypes.SayAs:
                 return new SayAs(data);
             case ElementTypes.s:

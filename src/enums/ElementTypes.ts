@@ -11,6 +11,7 @@ enum ElementTypes {
     Phoneme = "phoneme",
     Lexicon = "lexicon",
     Prosody = "prosody",
+    "say-as" = "say-as",
     SayAs = "sayAs",
     Audio = "audio",
     Bookmark = "bookmark",

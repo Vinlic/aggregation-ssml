@@ -14,6 +14,7 @@ class Element {
     public type: ElementTypes = ElementTypes.Element; //元素类型
     public value?: string;  //元素节点值
     public children: Element[] = [];  //元素子节点
+    protected disableValue = false;  //元素是否禁用值
     #parent?: Document | Element;  //父级指针
 
     constructor(options: IElementOptions, type = ElementTypes.Element) {
@@ -57,7 +58,7 @@ class Element {
     public render(parent: any, provider: Providers) {
         const tagName = TagNameMap[provider] ? TagNameMap[provider][this.type] : null;
         const element = tagName ? parent.ele(tagName) : parent;
-        this.value && element.txt(this.value);
+        this.value && !this.disableValue && element.txt(this.value);
         this.children.forEach(node => node.render(element, provider));
         return element;
     }

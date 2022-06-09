@@ -11,6 +11,7 @@ declare enum ElementTypes {
     Phoneme = "phoneme",
     Lexicon = "lexicon",
     Prosody = "prosody",
+    "say-as" = "say-as",
     SayAs = "sayAs",
     Audio = "audio",
     Bookmark = "bookmark",
@@ -50,6 +51,7 @@ declare class Element {
     type: ElementTypes;
     value?: string;
     children: Element[];
+    protected disableValue: boolean;
     constructor(options: IElementOptions, type?: ElementTypes);
     find(path: string): Element;
     appendChild(node: Element): void;

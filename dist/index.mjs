@@ -62,6 +62,7 @@ var ElementTypes = /* @__PURE__ */ ((ElementTypes2) => {
   ElementTypes2["Phoneme"] = "phoneme";
   ElementTypes2["Lexicon"] = "lexicon";
   ElementTypes2["Prosody"] = "prosody";
+  ElementTypes2["say-as"] = "say-as";
   ElementTypes2["SayAs"] = "sayAs";
   ElementTypes2["Audio"] = "audio";
   ElementTypes2["Bookmark"] = "bookmark";
@@ -239,6 +240,7 @@ var _Element = class {
     __publicField(this, "type", ElementTypes_default.Element);
     __publicField(this, "value");
     __publicField(this, "children", []);
+    __publicField(this, "disableValue", false);
     __privateAdd(this, _parent, void 0);
     if (!util_default.isObject(options))
       throw new TypeError("options must be an object");
@@ -275,7 +277,7 @@ var _Element = class {
   render(parent, provider) {
     const tagName = TagNameMap_default[provider] ? TagNameMap_default[provider][this.type] : null;
     const element = tagName ? parent.ele(tagName) : parent;
-    this.value && element.txt(this.value);
+    this.value && !this.disableValue && element.txt(this.value);
     this.children.forEach((node) => node.render(element, provider));
     return element;
   }
@@ -380,6 +382,7 @@ var Break = class extends Element_default {
   time = "";
   constructor(options, type = ElementTypes_default.Break) {
     super(options, type);
+    this.disableValue = true;
     util_default.optionsInject(this, options, {
       strength: (v) => !util_default.isUndefined(v) ? v.toString() : v,
       time: (v) => !util_default.isUndefined(v) ? v.toString() : v
@@ -754,6 +757,7 @@ var ElementFactory = class {
         return new Phoneme_default(data);
       case ElementTypes_default.Prosody:
         return new Prosody_default(data);
+      case ElementTypes_default["say-as"]:
       case ElementTypes_default.SayAs:
         return new SayAs_default(data);
       case ElementTypes_default.s:
