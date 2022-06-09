@@ -389,7 +389,7 @@ var Break = class extends Element_default {
       strength: (v) => util_default.isUndefined(v) || util_default.isString(v),
       time: (v) => util_default.isString(v)
     });
-    this.value = void 0;
+    this.children = [];
   }
   render(parent, provider) {
     const element = super.render(parent, provider);

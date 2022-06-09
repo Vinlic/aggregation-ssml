@@ -20,7 +20,7 @@ class Break extends Element {
             strength: (v: any) => util.isUndefined(v) || util.isString(v),
             time: (v: any) => util.isString(v)
         });
-        this.value = undefined;  //清除值
+        this.children = [];  //清除子元素
     }
 
     render(parent: any, provider: Providers) {
