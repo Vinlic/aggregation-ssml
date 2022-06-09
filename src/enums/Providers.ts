@@ -1,4 +1,5 @@
 enum Providers {
+  Unknown = 'unknown',
   Aliyun = 'aliyun',
   Microsoft = 'microsoft',
   Huawei = 'huawei',

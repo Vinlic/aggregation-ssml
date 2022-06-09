@@ -1,17 +1,18 @@
 import IElementOptions from './interface/IElementOptions';
 
 import ElementTypes from '../enums/ElementTypes';
+import Providers from '../enums/Providers';
 
 import ElementFactory from '../ElementFactory';
+import TagNameMap from '../TagNameMap';
 import Document from '../Document';
 import util from '../util';
 
 class Element {
     public static Type = ElementTypes;
 
-    public static tagName = "element";  //元素节点名称
-
     public type: ElementTypes = ElementTypes.Element; //元素类型
+    public tagName = 'element';  //元素标签名称
     public value?: string;  //元素节点值
     public parent?: Document | Element;  //父级指针
     public children: Element[] = [];  //元素子节点
@@ -35,8 +36,37 @@ class Element {
         });
     }
 
-    public render(parent?: any) {
-        this.children.forEach(element => element.render(parent));
+    public find(path: string) {
+        const keys = path.split(".");
+        let that: Element | undefined = this;
+        keys.forEach(key => {
+            if(!util.isObject(that)) {
+                that = undefined;
+                return;
+            }
+            that = that.children.find((v: Element) => v.type == key);
+        });
+        return that;
+    }
+
+    public appendChild(node: Element) {
+        if (!Element.isInstance(node))
+            throw new TypeError('node must be an Element instance');
+        node.parent = this;
+        this.children.push(node);
+    }
+
+    public render(parent: any, provider: Providers) {
+        const tagName = TagNameMap[provider] ? TagNameMap[provider][this.type] : null;
+        if(!tagName) return parent;
+        const element = parent.ele(tagName);
+        this.children.forEach(node => {
+            if(util.isString(node))
+                element.txt(node);
+            else
+                node.render(element, provider);
+        });
+        return element;
     }
 
     public static isInstance(value: any) {

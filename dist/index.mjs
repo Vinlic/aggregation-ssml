@@ -25,8 +25,32 @@ var __publicField = (obj, key, value) => {
 // src/Document.ts
 import { create } from "xmlbuilder2";
 
+// src/enums/ElementTypes.ts
+var ElementTypes = /* @__PURE__ */ ((ElementTypes2) => {
+  ElementTypes2["Element"] = "element";
+  ElementTypes2["Voice"] = "voice";
+  ElementTypes2["Language"] = "language";
+  ElementTypes2["Paragraph"] = "paragraph";
+  ElementTypes2["Sentence"] = "sentence";
+  ElementTypes2["Break"] = "break";
+  ElementTypes2["Phoneme"] = "phoneme";
+  ElementTypes2["Lexicon"] = "lexicon";
+  ElementTypes2["Prosody"] = "prosody";
+  ElementTypes2["SayAs"] = "sayAs";
+  ElementTypes2["Audio"] = "audio";
+  ElementTypes2["Bookmark"] = "bookmark";
+  ElementTypes2["Subsitute"] = "subsitute";
+  ElementTypes2["Word"] = "word";
+  ElementTypes2["BackgroundAudio"] = "backgroundAudio";
+  ElementTypes2["ExpressAs"] = "expressAs";
+  ElementTypes2["Silence"] = "silence";
+  return ElementTypes2;
+})(ElementTypes || {});
+var ElementTypes_default = ElementTypes;
+
 // src/enums/Providers.ts
 var Providers = /* @__PURE__ */ ((Providers2) => {
+  Providers2["Unknown"] = "unknown";
   Providers2["Aliyun"] = "aliyun";
   Providers2["Microsoft"] = "microsoft";
   Providers2["Huawei"] = "huawei";
@@ -39,6 +63,36 @@ var Providers = /* @__PURE__ */ ((Providers2) => {
   return Providers2;
 })(Providers || {});
 var Providers_default = Providers;
+
+// src/TagNameMap.ts
+var TagNameMap_default = {
+  [Providers_default.Aliyun]: {
+    [ElementTypes_default.Word]: "w",
+    [ElementTypes_default.Sentence]: "s",
+    [ElementTypes_default.Break]: "break",
+    [ElementTypes_default.Phoneme]: "phoneme",
+    [ElementTypes_default.SayAs]: "say-as",
+    [ElementTypes_default.Subsitute]: "sub",
+    [ElementTypes_default.Audio]: "soundEvent"
+  },
+  [Providers_default.Microsoft]: {
+    [ElementTypes_default.Voice]: "voice",
+    [ElementTypes_default.Language]: "lang",
+    [ElementTypes_default.Paragraph]: "p",
+    [ElementTypes_default.Sentence]: "s",
+    [ElementTypes_default.Break]: "break",
+    [ElementTypes_default.Phoneme]: "phoneme",
+    [ElementTypes_default.Lexicon]: "lexicon",
+    [ElementTypes_default.Prosody]: "prosody",
+    [ElementTypes_default.SayAs]: "say-as",
+    [ElementTypes_default.Subsitute]: "sub",
+    [ElementTypes_default.Bookmark]: "bookmark",
+    [ElementTypes_default.ExpressAs]: "mstts:express-as",
+    [ElementTypes_default.Silence]: "mstts:silence",
+    [ElementTypes_default.BackgroundAudio]: "backgroundaudio",
+    [ElementTypes_default.Audio]: "audio"
+  }
+};
 
 // src/util.ts
 import lodash from "lodash";
@@ -127,10 +181,486 @@ var util_default = __spreadProps(__spreadValues({}, lodash), {
   }
 });
 
+// src/elements/Element.ts
+var _Element = class {
+  type = ElementTypes_default.Element;
+  tagName = "element";
+  value;
+  parent;
+  children = [];
+  constructor(options, type = ElementTypes_default.Element) {
+    if (!util_default.isObject(options))
+      throw new TypeError("options must be an object");
+    util_default.optionsInject(this, options, {
+      type: (v) => util_default.defaultTo(v, type),
+      children: (datas) => util_default.isArray(datas) ? datas.map((options2) => {
+        const node = _Element.isInstance(options2) ? options2 : ElementFactory_default.createElement(options2);
+        node.parent = this;
+        return node;
+      }) : []
+    }, {
+      type: (v) => util_default.isString(v),
+      value: (v) => util_default.isUndefined(v) || util_default.isString(v),
+      children: (v) => util_default.isArray(v)
+    });
+  }
+  find(path) {
+    const keys = path.split(".");
+    let that = this;
+    keys.forEach((key) => {
+      if (!util_default.isObject(that)) {
+        that = void 0;
+        return;
+      }
+      that = that.children.find((v) => v.type == key);
+    });
+    return that;
+  }
+  appendChild(node) {
+    if (!_Element.isInstance(node))
+      throw new TypeError("node must be an Element instance");
+    node.parent = this;
+    this.children.push(node);
+  }
+  render(parent, provider) {
+    const tagName = TagNameMap_default[provider] ? TagNameMap_default[provider][this.type] : null;
+    if (!tagName)
+      return parent;
+    const element = parent.ele(tagName);
+    this.children.forEach((node) => {
+      if (util_default.isString(node))
+        element.txt(node);
+      else
+        node.render(element, provider);
+    });
+    return element;
+  }
+  static isInstance(value) {
+    return value instanceof _Element;
+  }
+};
+var Element = _Element;
+__publicField(Element, "Type", ElementTypes_default);
+var Element_default = Element;
+
+// src/elements/Audio.ts
+var Audio = class extends Element_default {
+  src = "";
+  constructor(options, type = ElementTypes_default.Audio) {
+    super(options, type);
+    util_default.optionsInject(this, options, {}, {
+      src: (v) => util_default.isString(v)
+    });
+  }
+  render(parent, provider) {
+    const element = super.render(parent, provider);
+    element.att("src", this.src);
+    return element;
+  }
+};
+var Audio_default = Audio;
+
+// src/elements/BackgroundAudio.ts
+var BackgroundAudio = class extends Element_default {
+  src = "";
+  volume = 1;
+  fadeIn;
+  fadeOut;
+  constructor(options, type = ElementTypes_default.BackgroundAudio) {
+    super(options, type);
+    util_default.optionsInject(this, options, {
+      volume: (v) => Number(util_default.defaultTo(v, 1)),
+      fadeIn: (v) => !util_default.isUndefined(v) ? Number(v) : v,
+      fadeOut: (v) => !util_default.isUndefined(v) ? Number(v) : v
+    }, {
+      src: (v) => util_default.isString(v),
+      volume: (v) => util_default.isFinite(v),
+      fadeIn: (v) => util_default.isUndefined(v) || util_default.isFinite(v),
+      fadeOut: (v) => util_default.isUndefined(v) || util_default.isFinite(v)
+    });
+  }
+  render(parent, provider) {
+    const element = super.render(parent, provider);
+    element.att("src", this.src);
+    element.att("volume", this.volume);
+    element.att("fadeIn", this.fadeIn);
+    element.att("fadeOut", this.fadeOut);
+    switch (provider) {
+      case Providers_default.Microsoft:
+        element.txt(" ");
+        break;
+    }
+    return element;
+  }
+};
+var BackgroundAudio_default = BackgroundAudio;
+
+// src/elements/Bookmark.ts
+var Bookmark = class extends Element_default {
+  mark = "";
+  constructor(options, type = ElementTypes_default.Bookmark) {
+    super(options, type);
+    util_default.optionsInject(this, options, {}, {
+      mark: (v) => util_default.isString(v)
+    });
+  }
+  render(parent, provider) {
+    const element = super.render(parent, provider);
+    element.att("mark", this.mark);
+    return element;
+  }
+};
+var Bookmark_default = Bookmark;
+
+// src/elements/Break.ts
+var Break = class extends Element_default {
+  strength;
+  time = "";
+  constructor(options, type = ElementTypes_default.Break) {
+    super(options, type);
+    util_default.optionsInject(this, options, {
+      strength: (v) => !util_default.isUndefined(v) ? v.toString() : v,
+      time: (v) => !util_default.isUndefined(v) ? v.toString() : v
+    }, {
+      strength: (v) => util_default.isUndefined(v) || util_default.isString(v),
+      time: (v) => util_default.isString(v)
+    });
+  }
+  render(parent, provider) {
+    const element = super.render(parent, provider);
+    element.att("time", this.time);
+    switch (provider) {
+      case Providers_default.Aliyun:
+        element.att("strength", this.strength);
+        break;
+    }
+    return element;
+  }
+};
+var Break_default = Break;
+
+// src/elements/Language.ts
+var Language = class extends Element_default {
+  language = "";
+  constructor(options, type = ElementTypes_default.Language) {
+    super(options, type);
+    util_default.optionsInject(this, options, {}, {
+      language: (v) => util_default.isString(v)
+    });
+  }
+  render(parent, provider) {
+    const element = super.render(parent, provider);
+    element.att("xml:lang", this.language);
+    return element;
+  }
+};
+var Language_default = Language;
+
+// src/elements/Lexicon.ts
+var Lexicon = class extends Element_default {
+  uri = "";
+  constructor(options, type = ElementTypes_default.Lexicon) {
+    super(options, type);
+    util_default.optionsInject(this, options, {}, {
+      uri: (v) => util_default.isString(v)
+    });
+  }
+  render(parent, provider) {
+    const element = super.render(parent, provider);
+    element.att("uri", this.uri);
+    return element;
+  }
+};
+var Lexicon_default = Lexicon;
+
+// src/elements/Paragraph.ts
+var Paragraph = class extends Element_default {
+  constructor(options, type = ElementTypes_default.Paragraph) {
+    super(options, type);
+  }
+  render(parent, provider) {
+    return super.render(parent, provider);
+  }
+};
+var Paragraph_default = Paragraph;
+
+// src/elements/Phoneme.ts
+var vowelTones = [
+  "\u0101",
+  "\xE1",
+  "\u01CE",
+  "\xE0",
+  "\u014D",
+  "\xF3",
+  "\u01D2",
+  "\xF2",
+  "\u0113",
+  "\xE9",
+  "\u011B",
+  "\xE8",
+  "\u012B",
+  "\xED",
+  "\u01D0",
+  "\xEC",
+  "\u016B",
+  "\xFA",
+  "\u01D4",
+  "\xF9",
+  "\u01D6",
+  "\u01D8",
+  "\u01DA",
+  "\u01DC"
+];
+var vowels = ["a", "o", "e", "i", "u", "\xFC"];
+var regExp = new RegExp(vowelTones.join("|"), "g");
+var Phoneme = class extends Element_default {
+  alphabet = "";
+  ph;
+  constructor(options, type = ElementTypes_default.Phoneme) {
+    super(options, type);
+    util_default.optionsInject(this, options, {
+      alphabet: (v) => util_default.defaultTo(v, "py")
+    }, {
+      alphabet: (v) => util_default.isString(v),
+      ph: (v) => util_default.isString(v)
+    });
+  }
+  render(parent, provider) {
+    const element = super.render(parent, provider);
+    let ph;
+    if (this.alphabet === "py" && this.ph)
+      ph = this.pinyinConvert(this.ph);
+    switch (provider) {
+      case Providers_default.Aliyun:
+        element.att("alphabet", this.alphabet);
+        element.att("ph", ph || this.ph);
+        break;
+      case Providers_default.Microsoft:
+        element.att("alphabet", this.alphabet == "py" ? "sapi" : this.alphabet);
+        element.att("ph", ph ? this.pinyin2sapi(ph) : this.ph);
+        break;
+      default:
+        element.att("alphabet", this.alphabet);
+        element.att("ph", this.ph);
+    }
+    return element;
+  }
+  pinyin2sapi(value) {
+    const regExp2 = new RegExp(/(([a-z]+)(\d))+/g);
+    let match = null;
+    let chunks = [];
+    while ((match = regExp2.exec(value)) != null) {
+      const [, , symbol, tone] = match;
+      chunks.push(`${symbol} ${tone}`);
+    }
+    return chunks.join(" - ");
+  }
+  pinyinConvert(value) {
+    const spaceRegExp = /\s/g;
+    let temp, offset = 0;
+    let ph = value.split("");
+    while ((temp = regExp.exec(value)) != null) {
+      const toneIndex = vowelTones.indexOf(temp[0]);
+      const vowelIndex = Math.floor(toneIndex / 4);
+      const spaceMatch = spaceRegExp.exec(value);
+      ph[temp.index + offset] = vowels[vowelIndex];
+      if (spaceMatch)
+        ph.splice(spaceMatch.index + offset, 0, toneIndex % 4 + 1);
+      else
+        ph.push(toneIndex % 4 + 1);
+      offset++;
+    }
+    return ph.join("");
+  }
+};
+var Phoneme_default = Phoneme;
+
+// src/elements/Prosody.ts
+var Prosody = class extends Element_default {
+  pitch;
+  contour;
+  range;
+  rate;
+  duration;
+  volume;
+  constructor(options, type = ElementTypes_default.Prosody) {
+    super(options, type);
+    util_default.optionsInject(this, options, {
+      pitch: (v) => util_default.isUndefined(v) ? v : Number(v),
+      rate: (v) => util_default.isUndefined(v) ? v : Number(v),
+      volume: (v) => util_default.isUndefined(v) ? v : Number(v)
+    }, {
+      pitch: (v) => util_default.isUndefined(v) || util_default.isFinite(v),
+      contour: (v) => util_default.isUndefined(v) || util_default.isString(v),
+      range: (v) => util_default.isUndefined(v) || util_default.isString(v),
+      rate: (v) => util_default.isUndefined(v) || util_default.isFinite(v),
+      duration: (v) => util_default.isUndefined(v) || util_default.isString(v),
+      volume: (v) => util_default.isUndefined(v) || util_default.isFinite(v)
+    });
+  }
+  render(parent, provider) {
+    const element = super.render(parent, provider);
+    element.att("pitch", this.pitch ? `${parseInt((this.pitch * 50 - 50).toString())}%` : void 0);
+    element.att("contour", this.contour);
+    element.att("range", this.range);
+    element.att("rate", this.rate);
+    element.att("duration", this.duration);
+    element.att("volume", this.volume ? this.volume > 100 ? 100 : this.volume : void 0);
+    return element;
+  }
+};
+var Prosody_default = Prosody;
+
+// src/elements/SayAs.ts
+var SayAs = class extends Element_default {
+  interpretAs = "";
+  format;
+  detail;
+  constructor(options, type = ElementTypes_default.SayAs) {
+    super(options, type);
+    options.interpretAs = options.interpretAs || options["interpret-as"];
+    util_default.optionsInject(this, options, {}, {
+      interpretAs: (v) => util_default.isString(v),
+      format: (v) => util_default.isUndefined(v) || util_default.isString(v),
+      detail: (v) => util_default.isUndefined(v) || util_default.isString(v)
+    });
+  }
+  render(parent, provider) {
+    const element = super.render(parent, provider);
+    switch (provider) {
+      case Providers_default.Aliyun:
+        element.att("interpret-as", this.interpretAs);
+      case Providers_default.Microsoft:
+        element.att("interpret-as", {
+          digits: "number_digit"
+        }[this.interpretAs] || this.interpretAs);
+        element.att("format", this.format);
+        element.att("detail", this.detail);
+        break;
+      default:
+        element.att("interpret-as", this.interpretAs);
+    }
+    return element;
+  }
+};
+var SayAs_default = SayAs;
+
+// src/elements/Sentence.ts
+var Sentence = class extends Element_default {
+  constructor(options, type = ElementTypes_default.Sentence) {
+    super(options, type);
+  }
+  render(parent, provider) {
+    return super.render(parent, provider);
+  }
+};
+var Sentence_default = Sentence;
+
+// src/elements/Subsitute.ts
+var Subsitute = class extends Element_default {
+  alias = "";
+  constructor(options, type = ElementTypes_default.Subsitute) {
+    super(options, type);
+    util_default.optionsInject(this, options, {}, {
+      alias: (v) => util_default.isString(v)
+    });
+  }
+  render(parent, provider) {
+    const element = super.render(parent, provider);
+    element.att("alias", this.alias);
+    return element;
+  }
+};
+var Subsitute_default = Subsitute;
+
+// src/elements/Voice.ts
+var Voice = class extends Element_default {
+  name = "";
+  gender;
+  age;
+  variant;
+  language;
+  constructor(options, type = ElementTypes_default.Voice) {
+    super(options, type);
+    options.gender = options.gender || options["xml:gender"];
+    options.language = options.language || options["xml:lang"];
+    util_default.optionsInject(this, options, {
+      age: (v) => !util_default.isUndefined(v) ? Number(v) : v
+    }, {
+      name: (v) => util_default.isString(v),
+      gender: (v) => util_default.isUndefined(v) || util_default.isString(v),
+      age: (v) => util_default.isUndefined(v) || util_default.isFinite(v),
+      variant: (v) => util_default.isUndefined(v) || util_default.isString(v),
+      language: (v) => util_default.isUndefined(v) || util_default.isString(v)
+    });
+  }
+  render(parent, provider) {
+    const element = super.render(parent, provider);
+    element.att("name", this.name);
+    element.att("age", this.age);
+    element.att("variant", this.variant);
+    element.att("xml:gender", this.gender);
+    element.att("xml:lang", this.language);
+    return element;
+  }
+};
+var Voice_default = Voice;
+
+// src/elements/Word.ts
+var Word = class extends Element_default {
+  constructor(options, type = ElementTypes_default.Word) {
+    super(options, type);
+  }
+  render(parent, provider) {
+    return super.render(parent, provider);
+  }
+};
+var Word_default = Word;
+
+// src/ElementFactory.ts
+var ElementFactory = class {
+  static createElement(data) {
+    if (!util_default.isObject(data))
+      throw new TypeError("data must be an Object");
+    switch (data.type) {
+      case ElementTypes_default.Audio:
+        return new Audio_default(data);
+      case ElementTypes_default.BackgroundAudio:
+        return new BackgroundAudio_default(data);
+      case ElementTypes_default.Bookmark:
+        return new Bookmark_default(data);
+      case ElementTypes_default.Break:
+        return new Break_default(data);
+      case ElementTypes_default.Language:
+        return new Language_default(data);
+      case ElementTypes_default.Lexicon:
+        return new Lexicon_default(data);
+      case ElementTypes_default.Paragraph:
+        return new Paragraph_default(data);
+      case ElementTypes_default.Phoneme:
+        return new Phoneme_default(data);
+      case ElementTypes_default.Prosody:
+        return new Prosody_default(data);
+      case ElementTypes_default.SayAs:
+        return new SayAs_default(data);
+      case ElementTypes_default.Sentence:
+        return new Sentence_default(data);
+      case ElementTypes_default.Subsitute:
+        return new Subsitute_default(data);
+      case ElementTypes_default.Voice:
+        return new Voice_default(data);
+      case ElementTypes_default.Word:
+        return new Word_default(data);
+    }
+    return new Element_default(data);
+  }
+};
+var ElementFactory_default = ElementFactory;
+
 // src/Document.ts
 var Document = class {
   type = "";
-  provider = "";
+  provider = Providers_default.Unknown;
   version = "";
   language = "";
   xmlns = "";
@@ -144,10 +674,16 @@ var Document = class {
       throw new TypeError("options must be an object");
     util_default.optionsInject(this, options, {
       type: () => "document",
+      provider: (v) => !util_default.isUndefined(v) ? v : v,
       version: (v) => util_default.defaultTo(v, "1.0"),
       language: (v) => util_default.defaultTo(v, "zh-cn"),
       xmlns: (v) => util_default.defaultTo(v, "http://www.w3.org/2001/10/synthesis"),
-      format: (v) => util_default.defaultTo(v, "mp3")
+      format: (v) => util_default.defaultTo(v, "mp3"),
+      children: (datas) => util_default.isArray(datas) ? datas.map((options2) => {
+        const node = Element_default.isInstance(options2) ? options2 : ElementFactory_default.createElement(options2);
+        node.parent = this;
+        return node;
+      }) : []
     }, {
       provider: (v) => Object.values(Providers_default).includes(v),
       version: (v) => util_default.isString(v),
@@ -155,8 +691,27 @@ var Document = class {
       xmlns: (v) => util_default.isString(v),
       format: (v) => util_default.isString(v),
       effect: (v) => util_default.isUndefined(v) || util_default.isString(v),
-      sampleRate: (v) => util_default.isUndefined(v) || util_default.isString(v)
+      sampleRate: (v) => util_default.isUndefined(v) || util_default.isString(v),
+      children: (v) => util_default.isArray(v)
     });
+  }
+  find(path) {
+    const keys = path.split(".");
+    let that = this;
+    keys.forEach((key) => {
+      if (!util_default.isObject(that)) {
+        that = void 0;
+        return;
+      }
+      that = that.children.find((v) => v.type == key);
+    });
+    return that;
+  }
+  appendChild(node) {
+    if (!Element_default.isInstance(node))
+      throw new TypeError("node must be an Element instance");
+    node.parent = this;
+    this.children.push(node);
   }
   toSSML(pretty = false) {
     const root = create();
@@ -164,6 +719,7 @@ var Document = class {
     speak.att("version", this.version);
     speak.att("xml:lang", this.language);
     speak.att("xmlns", this.xmlns);
+    this.children.forEach((node) => node.render(speak, this.provider));
     return speak.end({ prettyPrint: pretty, headless: true });
   }
 };
