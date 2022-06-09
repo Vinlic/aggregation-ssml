@@ -392,7 +392,11 @@ var Bookmark = class extends Element_default {
   }
   render(parent, provider) {
     const element = super.render(parent, provider);
-    element.att("mark", this.mark);
+    switch (provider) {
+      case Providers_default.Microsoft:
+        element.att("mark", this.mark);
+        break;
+    }
     return element;
   }
 };
@@ -437,7 +441,11 @@ var Language = class extends Element_default {
   }
   render(parent, provider) {
     const element = super.render(parent, provider);
-    element.att("xml:lang", this.language);
+    switch (provider) {
+      case Providers_default.Microsoft:
+        element.att("xml:lang", this.language);
+        break;
+    }
     return element;
   }
 };
@@ -454,7 +462,11 @@ var Lexicon = class extends Element_default {
   }
   render(parent, provider) {
     const element = super.render(parent, provider);
-    element.att("uri", this.uri);
+    switch (provider) {
+      case Providers_default.Microsoft:
+        element.att("uri", this.uri);
+        break;
+    }
     return element;
   }
 };
@@ -587,12 +599,16 @@ var Prosody = class extends Element_default {
   }
   render(parent, provider) {
     const element = super.render(parent, provider);
-    element.att("pitch", this.pitch ? `${parseInt((this.pitch * 50 - 50).toString())}%` : void 0);
-    element.att("contour", this.contour);
-    element.att("range", this.range);
-    element.att("rate", this.rate);
-    element.att("duration", this.duration);
-    element.att("volume", this.volume ? this.volume > 100 ? 100 : this.volume : void 0);
+    switch (provider) {
+      case Providers_default.Microsoft:
+        element.att("pitch", this.pitch ? `${parseInt((this.pitch * 50 - 50).toString())}%` : void 0);
+        element.att("contour", this.contour);
+        element.att("range", this.range);
+        element.att("rate", this.rate);
+        element.att("duration", this.duration);
+        element.att("volume", this.volume ? this.volume > 100 ? 100 : this.volume : void 0);
+        break;
+    }
     return element;
   }
 };
@@ -617,6 +633,7 @@ var SayAs = class extends Element_default {
     switch (provider) {
       case Providers_default.Aliyun:
         element.att("interpret-as", this.interpretAs);
+        break;
       case Providers_default.Microsoft:
         element.att("interpret-as", {
           digits: "number_digit"
@@ -683,11 +700,15 @@ var Voice = class extends Element_default {
   }
   render(parent, provider) {
     const element = super.render(parent, provider);
-    element.att("name", this.name);
-    element.att("age", this.age);
-    element.att("variant", this.variant);
-    element.att("xml:gender", this.gender);
-    element.att("xml:lang", this.language);
+    switch (provider) {
+      case Providers_default.Microsoft:
+        element.att("name", this.name);
+        element.att("age", this.age);
+        element.att("variant", this.variant);
+        element.att("xml:gender", this.gender);
+        element.att("xml:lang", this.language);
+        break;
+    }
     return element;
   }
 };
@@ -721,9 +742,13 @@ var ExpressAs = class extends Element_default {
   }
   render(parent, provider) {
     const element = super.render(parent, provider);
-    element.att("style", this.style);
-    element.att("styledegree", this.styledegree);
-    element.att("role", this.role);
+    switch (provider) {
+      case Providers_default.Microsoft:
+        element.att("style", this.style);
+        element.att("styledegree", this.styledegree);
+        element.att("role", this.role);
+        break;
+    }
     return element;
   }
 };
@@ -744,8 +769,12 @@ var Silence = class extends Element_default {
   }
   render(parent, provider) {
     const element = super.render(parent, provider);
-    element.att("type", this._type);
-    element.att("value", this._value);
+    switch (provider) {
+      case Providers_default.Microsoft:
+        element.att("type", this._type);
+        element.att("value", this._value);
+        break;
+    }
     return element;
   }
 };

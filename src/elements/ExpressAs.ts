@@ -25,9 +25,13 @@ class ExpressAs extends Element {
 
     render(parent: any, provider: Providers) {
         const element = super.render(parent, provider);
-        element.att("style", this.style);
-        element.att("styledegree", this.styledegree);
-        element.att("role", this.role);
+        switch(provider) {
+            case Providers.Microsoft:
+                element.att("style", this.style);
+                element.att("styledegree", this.styledegree);
+                element.att("role", this.role);
+            break;
+        }
         return element;
     }
 

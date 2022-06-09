@@ -19,7 +19,11 @@ class Bookmark extends Element {
 
     render(parent: any, provider: Providers) {
         const element = super.render(parent, provider);
-        element.att("mark", this.mark);
+        switch(provider) {
+            case Providers.Microsoft:
+                element.att("mark", this.mark);
+            break;
+        }
         return element;
     }
 

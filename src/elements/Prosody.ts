@@ -33,12 +33,16 @@ class Prosody extends Element {
 
     render(parent: any, provider: Providers) {
         const element = super.render(parent, provider);
-        element.att("pitch", this.pitch ? `${parseInt((this.pitch * 50 - 50).toString())}%` : undefined);
-        element.att("contour", this.contour);
-        element.att("range", this.range);
-        element.att("rate", this.rate);
-        element.att("duration", this.duration);
-        element.att("volume", this.volume ? this.volume > 100 ? 100 : this.volume : undefined);
+        switch(provider) {
+            case Providers.Microsoft:
+                element.att("pitch", this.pitch ? `${parseInt((this.pitch * 50 - 50).toString())}%` : undefined);
+                element.att("contour", this.contour);
+                element.att("range", this.range);
+                element.att("rate", this.rate);
+                element.att("duration", this.duration);
+                element.att("volume", this.volume ? this.volume > 100 ? 100 : this.volume : undefined);
+            break;
+        }
         return element;
     }
 

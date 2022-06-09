@@ -23,8 +23,12 @@ class Silence extends Element {
 
     render(parent: any, provider: Providers) {
         const element = super.render(parent, provider);
-        element.att("type", this._type);
-        element.att("value", this._value);
+        switch (provider) {
+            case Providers.Microsoft:
+                element.att("type", this._type);
+                element.att("value", this._value);
+                break;
+        }
         return element;
     }
 

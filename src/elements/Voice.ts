@@ -31,11 +31,15 @@ class Voice extends Element {
 
     render(parent: any, provider: Providers) {
         const element = super.render(parent, provider);
-        element.att("name", this.name);
-        element.att("age", this.age);
-        element.att("variant", this.variant);
-        element.att("xml:gender", this.gender);
-        element.att("xml:lang", this.language);
+        switch (provider) {
+            case Providers.Microsoft:
+                element.att("name", this.name);
+                element.att("age", this.age);
+                element.att("variant", this.variant);
+                element.att("xml:gender", this.gender);
+                element.att("xml:lang", this.language);
+                break;
+        }
         return element;
     }
 

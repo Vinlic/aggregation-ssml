@@ -27,6 +27,7 @@ class SayAs extends Element {
         switch(provider) {
             case Providers.Aliyun:
                 element.att("interpret-as", this.interpretAs);
+            break;
             case Providers.Microsoft:
                 element.att("interpret-as", {
                     digits: "number_digit"
