@@ -58,7 +58,7 @@ class Element {
     public render(parent: any, provider: Providers) {
         const tagName = TagNameMap[provider] ? TagNameMap[provider][this.type] : null;
         const element = tagName ? parent.ele(tagName) : parent;
-        this.value && !this.disableValue && element.txt(this.value);
+        this.value && element.txt(this.value);
         this.children.forEach(node => node.render(element, provider));
         return element;
     }

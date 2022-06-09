@@ -299,7 +299,7 @@ var _Element = class {
   render(parent, provider) {
     const tagName = TagNameMap_default[provider] ? TagNameMap_default[provider][this.type] : null;
     const element = tagName ? parent.ele(tagName) : parent;
-    this.value && !this.disableValue && element.txt(this.value);
+    this.value && element.txt(this.value);
     this.children.forEach((node) => node.render(element, provider));
     return element;
   }
@@ -404,7 +404,6 @@ var Break = class extends Element_default {
   time = "";
   constructor(options, type = ElementTypes_default.Break) {
     super(options, type);
-    this.disableValue = true;
     util_default.optionsInject(this, options, {
       strength: (v) => !util_default.isUndefined(v) ? v.toString() : v,
       time: (v) => !util_default.isUndefined(v) ? v.toString() : v
@@ -412,6 +411,7 @@ var Break = class extends Element_default {
       strength: (v) => util_default.isUndefined(v) || util_default.isString(v),
       time: (v) => util_default.isString(v)
     });
+    this.value = void 0;
   }
   render(parent, provider) {
     const element = super.render(parent, provider);

@@ -13,7 +13,6 @@ class Break extends Element {
 
     constructor(options: IBreakOptions, type = ElementTypes.Break) {
         super(options, type);
-        this.disableValue = true;  //禁用值
         util.optionsInject(this, options, {
             strength: (v: any) => !util.isUndefined(v) ? v.toString() : v,
             time: (v: any) => !util.isUndefined(v) ? v.toString() : v,
@@ -21,6 +20,7 @@ class Break extends Element {
             strength: (v: any) => util.isUndefined(v) || util.isString(v),
             time: (v: any) => util.isString(v)
         });
+        this.value = undefined;  //清除值
     }
 
     render(parent: any, provider: Providers) {
