@@ -27,5 +27,12 @@ export default {
         [ElementTypes.Silence]: "mstts:silence",
         [ElementTypes.BackgroundAudio]: "backgroundaudio",
         [ElementTypes.Audio]: "audio",
+    },
+    [Providers.YunXiaoWei]: {
+        [ElementTypes.Word]: 'w',
+        [ElementTypes.Break]: "break",
+        [ElementTypes.Phoneme]: 'phoneme',
+        [ElementTypes.SayAs]: "say-as",
+        [ElementTypes.Prosody]: 'prosody'
     }
 } as any;

@@ -167,6 +167,13 @@ var TagNameMap_default = {
     [ElementTypes_default.Silence]: "mstts:silence",
     [ElementTypes_default.BackgroundAudio]: "backgroundaudio",
     [ElementTypes_default.Audio]: "audio"
+  },
+  [Providers_default.YunXiaoWei]: {
+    [ElementTypes_default.Word]: "w",
+    [ElementTypes_default.Break]: "break",
+    [ElementTypes_default.Phoneme]: "phoneme",
+    [ElementTypes_default.SayAs]: "say-as",
+    [ElementTypes_default.Prosody]: "prosody"
   }
 };
 
@@ -422,6 +429,7 @@ var Break = class extends Element_default {
     element.att("time", this.time);
     switch (provider) {
       case Providers_default.Aliyun:
+      case Providers_default.YunXiaoWei:
         element.att("strength", this.strength);
         break;
     }
@@ -538,6 +546,9 @@ var Phoneme = class extends Element_default {
         element.att("alphabet", this.alphabet == "py" ? "sapi" : this.alphabet);
         element.att("ph", ph ? this.pinyin2sapi(ph) : this.ph);
         break;
+      case Providers_default.YunXiaoWei:
+        element.att("py", ph || this.pinyinConvert(this.ph));
+        break;
       default:
         element.att("alphabet", this.alphabet);
         element.att("ph", this.ph);
@@ -555,6 +566,8 @@ var Phoneme = class extends Element_default {
     return chunks.join(" - ");
   }
   pinyinConvert(value) {
+    if (!value)
+      return;
     const spaceRegExp = /\s/g;
     let temp, offset = 0;
     let ph = value.split("");
@@ -608,6 +621,12 @@ var Prosody = class extends Element_default {
         element.att("duration", this.duration);
         element.att("volume", this.volume ? this.volume > 100 ? 100 : this.volume : void 0);
         break;
+      case Providers_default.YunXiaoWei:
+        const volume = this.volume ? this.volume > 200 ? 200 : this.volume : void 0;
+        this.pitch && element.att("pitch", this.pitch > 1.3 ? 1.3 : this.pitch < 0.7 ? 0.7 : this.pitch);
+        volume && element.att("volume", volume / 100);
+        this.rate && element.att("rate", this.rate > 2 ? 2 : this.rate < 0.5 ? 0.5 : this.rate);
+        break;
     }
     return element;
   }
@@ -640,6 +659,10 @@ var SayAs = class extends Element_default {
         }[this.interpretAs] || this.interpretAs);
         element.att("format", this.format);
         element.att("detail", this.detail);
+        break;
+      case Providers_default.YunXiaoWei:
+        element.att("interpret-as", this.interpretAs);
+        element.att("format", this.format);
         break;
       default:
         element.att("interpret-as", this.interpretAs);
@@ -844,6 +867,7 @@ var xmlParser = new import_fast_xml_parser.XMLParser({
 var _Document = class {
   type = "";
   provider = Providers_default.Unknown;
+  solution;
   version = "";
   language = "";
   xmlns = "";
@@ -852,7 +876,7 @@ var _Document = class {
   format = "";
   sampleRate;
   children = [];
-  constructor(options = {}) {
+  constructor(options) {
     if (!util_default.isObject(options))
       throw new TypeError("options must be an object");
     util_default.optionsInject(this, options, {
@@ -868,6 +892,7 @@ var _Document = class {
         return node;
       }) : []
     }, {
+      type: (v) => v === "document",
       provider: (v) => Object.values(Providers_default).includes(v),
       version: (v) => util_default.isString(v),
       language: (v) => util_default.isString(v),

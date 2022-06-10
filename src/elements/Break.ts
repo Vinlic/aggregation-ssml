@@ -28,6 +28,7 @@ class Break extends Element {
         element.att("time", this.time);
         switch(provider) {
             case Providers.Aliyun:
+            case Providers.YunXiaoWei:
                 element.att("strength", this.strength);
             break;
         }

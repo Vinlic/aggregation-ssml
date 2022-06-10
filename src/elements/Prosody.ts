@@ -40,7 +40,13 @@ class Prosody extends Element {
                 element.att("range", this.range);
                 element.att("rate", this.rate);
                 element.att("duration", this.duration);
-                element.att("volume", this.volume ? this.volume > 100 ? 100 : this.volume : undefined);
+                element.att("volume", this.volume ? (this.volume > 100 ? 100 : this.volume) : undefined);
+            break;
+            case Providers.YunXiaoWei:
+                const volume = this.volume ? (this.volume > 200 ? 200 : this.volume) : undefined;
+                this.pitch && element.att("pitch", this.pitch > 1.3 ? 1.3 : (this.pitch < 0.7 ? 0.7 : this.pitch));
+                volume && element.att("volume", volume / 100);
+                this.rate && element.att("rate", this.rate > 2 ? 2 : (this.rate < 0.5 ? 0.5 : this.rate));
             break;
         }
         return element;

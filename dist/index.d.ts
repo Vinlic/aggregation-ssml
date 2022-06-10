@@ -26,12 +26,6 @@ declare enum ElementTypes {
     Silence = "silence"
 }
 
-interface IElementOptions {
-    type?: ElementTypes;
-    value?: string;
-    children?: (Element | IElementOptions)[];
-}
-
 declare enum Providers {
     Unknown = "unknown",
     Aliyun = "aliyun",
@@ -59,6 +53,26 @@ declare class Element {
     static isInstance(value: any): boolean;
     set parent(obj: Document | Element | undefined);
     get parent(): Document | Element | undefined;
+}
+
+interface IElementOptions {
+    type?: ElementTypes;
+    value?: string;
+    children?: (Element | IElementOptions)[];
+}
+
+interface IDocumentOptions {
+    type?: string;
+    provider?: string;
+    solution?: string;
+    version?: string;
+    language?: string;
+    xmlns?: string;
+    effect?: string;
+    effectValue?: string;
+    format?: string;
+    sampleRate?: string;
+    children?: (Element | IElementOptions)[];
 }
 
 declare class Raw extends Element {
@@ -330,6 +344,7 @@ declare class Document {
     static readonly type = "document";
     type: string;
     provider: Providers;
+    solution?: string;
     version: string;
     language: string;
     xmlns: string;
@@ -338,7 +353,7 @@ declare class Document {
     format: string;
     sampleRate?: string;
     children: Element[];
-    constructor(options?: {});
+    constructor(options: IDocumentOptions);
     find(path: string): Document | Element | undefined;
     appendChild(node: Element): void;
     toSSML(pretty?: boolean): string;

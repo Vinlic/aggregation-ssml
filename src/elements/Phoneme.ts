@@ -46,6 +46,9 @@ class Phoneme extends Element {
                 element.att("alphabet", this.alphabet == "py" ? "sapi" : this.alphabet);
                 element.att("ph", ph ? this.pinyin2sapi(ph) : this.ph);
             break;
+            case Providers.YunXiaoWei:
+                element.att("py", ph || this.pinyinConvert(this.ph));
+            break;
             default:
                 element.att("alphabet", this.alphabet);
                 element.att("ph", this.ph);
@@ -64,7 +67,8 @@ class Phoneme extends Element {
         return chunks.join(" - ");
     }
 
-    private pinyinConvert(value: string) {
+    private pinyinConvert(value: string | undefined) {
+        if(!value) return;
         const spaceRegExp = /\s/g;
         let temp, offset = 0;
         let ph = value.split("") as any;

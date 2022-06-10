@@ -35,6 +35,10 @@ class SayAs extends Element {
                 element.att("format", this.format);
                 element.att("detail", this.detail);
             break;
+            case Providers.YunXiaoWei:
+                element.att("interpret-as", this.interpretAs);
+                element.att("format", this.format);
+            break;
             default:
                 element.att("interpret-as", this.interpretAs);
         }

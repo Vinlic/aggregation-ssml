@@ -1,6 +1,7 @@
 import { create } from 'xmlbuilder2';
 import { XMLParser } from 'fast-xml-parser';
 
+import IDocumentOptions from './interface/IDocumentOptions';
 import IElementOptions from './elements/interface/IElementOptions';
 
 import ElementFactory from './ElementFactory';
@@ -22,6 +23,7 @@ class Document {
     public static readonly type = 'document'; // type标识
     public type = ''; // 文档type必须为document
     public provider = Providers.Unknown;  //服务提供商
+    public solution?: string;  //形象ID
     public version = '';  //文档版本
     public language = '';  //根文档语言
     public xmlns = '';  //文档URI
@@ -31,7 +33,7 @@ class Document {
     public sampleRate?: string;  //发音音频采样率
     public children: Element[] = [];  //文档子元素
 
-    constructor(options = {}) {
+    constructor(options: IDocumentOptions) {
         if(!util.isObject(options)) throw new TypeError('options must be an object');
         util.optionsInject(this, options, {
             type: () => 'document',
@@ -49,6 +51,7 @@ class Document {
                     })
                     : [], //实例化子节点
         }, {
+            type: (v: any) => v === "document",
             provider: (v: any) => Object.values(Providers).includes(v),
             version: (v: any) => util.isString(v),
             language: (v: any) => util.isString(v),
