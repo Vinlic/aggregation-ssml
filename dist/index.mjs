@@ -872,6 +872,7 @@ var _Document = class {
     }, {
       type: (v) => v === "document",
       provider: (v) => Object.values(Providers_default).includes(v),
+      solution: (v) => util_default.isUndefined(v) || util_default.isString(v),
       version: (v) => util_default.isString(v),
       language: (v) => util_default.isString(v),
       xmlns: (v) => util_default.isString(v),

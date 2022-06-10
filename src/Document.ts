@@ -53,6 +53,7 @@ class Document {
         }, {
             type: (v: any) => v === "document",
             provider: (v: any) => Object.values(Providers).includes(v),
+            solution: (v: any) => util.isUndefined(v) || util.isString(v),
             version: (v: any) => util.isString(v),
             language: (v: any) => util.isString(v),
             xmlns: (v: any) => util.isString(v),
