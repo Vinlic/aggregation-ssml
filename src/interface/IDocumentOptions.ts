@@ -5,7 +5,6 @@ import Element from '../elements/Element';
 interface IDocumentOptions {
     type?: string;
     provider?: string;
-    solution?: string;
     version?: string;
     language?: string;
     xmlns?: string;

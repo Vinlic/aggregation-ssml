@@ -23,7 +23,6 @@ class Document {
     public static readonly type = 'document'; // type标识
     public type = ''; // 文档type必须为document
     public provider = Providers.Unknown;  //服务提供商
-    public solution?: string;  //形象ID
     public version = '';  //文档版本
     public language = '';  //根文档语言
     public xmlns = '';  //文档URI
@@ -53,7 +52,6 @@ class Document {
         }, {
             type: (v: any) => v === "document",
             provider: (v: any) => Object.values(Providers).includes(v),
-            solution: (v: any) => util.isUndefined(v) || util.isString(v),
             version: (v: any) => util.isString(v),
             language: (v: any) => util.isString(v),
             xmlns: (v: any) => util.isString(v),

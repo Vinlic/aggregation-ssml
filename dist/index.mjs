@@ -603,7 +603,7 @@ var Prosody = class extends Element_default {
         const volume = this.volume ? this.volume > 200 ? 200 : this.volume : void 0;
         this.pitch && element.att("pitch", this.pitch > 1.3 ? 1.3 : this.pitch < 0.7 ? 0.7 : this.pitch);
         volume && element.att("volume", volume / 100);
-        this.rate && element.att("rate", this.rate > 2 ? 2 : this.rate < 0.5 ? 0.5 : this.rate);
+        this.rate && element.att("rate", 2 - (this.rate > 2 ? 2 : this.rate < 0.5 ? 0.5 : this.rate));
         break;
     }
     return element;
@@ -845,7 +845,6 @@ var xmlParser = new XMLParser({
 var _Document = class {
   type = "";
   provider = Providers_default.Unknown;
-  solution;
   version = "";
   language = "";
   xmlns = "";
@@ -872,7 +871,6 @@ var _Document = class {
     }, {
       type: (v) => v === "document",
       provider: (v) => Object.values(Providers_default).includes(v),
-      solution: (v) => util_default.isUndefined(v) || util_default.isString(v),
       version: (v) => util_default.isString(v),
       language: (v) => util_default.isString(v),
       xmlns: (v) => util_default.isString(v),
