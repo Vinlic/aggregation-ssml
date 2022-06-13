@@ -9,6 +9,8 @@ import Document from '../Document';
 import { Break } from '../elements';
 import util from '../util';
 
+const splitSymbols = [",", "，", "。", "!", "！", ";", "；", ":", "："];
+
 class Element {
     public static Type = ElementTypes;
 
@@ -18,7 +20,7 @@ class Element {
     #parent?: Document | Element;  //父级指针
 
     constructor(options: IElementOptions, type = ElementTypes.Element) {
-        if(!util.isObject(options)) throw new TypeError('options must be an object');
+        if (!util.isObject(options)) throw new TypeError('options must be an object');
         this.type = type;
         util.optionsInject(this, options, {
             children: (datas: IElementOptions[]) =>
@@ -39,7 +41,7 @@ class Element {
         const keys = path.split(".");
         let that: Element | undefined = this;
         keys.forEach(key => {
-            if(!util.isObject(that)) {
+            if (!util.isObject(that)) {
                 that = undefined;
                 return;
             }
@@ -63,28 +65,88 @@ class Element {
         return element;
     }
 
+    splitText(value: string) {
+        const texts = [];
+        let searchIndex = 0;
+        let foundIndex = 0;
+        while (foundIndex !== Infinity) {
+            foundIndex = Math.min(...(splitSymbols.map(symbol => {
+                const index = value.indexOf(symbol, searchIndex);
+                if (index === -1) return Infinity;
+                return index;
+            })));  //寻找距离最近的切分符号
+            texts.push(value.substring(searchIndex, foundIndex));  //切分文本内容
+            searchIndex = foundIndex + 1;
+        }
+        return texts;
+    }
+
+    public parseTextDuration(text: string, provider: Providers, declaimer: string, speechRate: number) {
+        const factor = 2 - speechRate;
+        let textDuration = 0;
+        const chars = text.split("");
+        chars.forEach(char => {
+            switch (provider) {
+                case Providers.Aliyun:
+                    if (char === "%" || char === "。")
+                        textDuration += 660;
+                    else if (splitSymbols.indexOf(char) !== -1)
+                        textDuration += 100;
+                    else
+                        textDuration += 220;
+                    break;
+                case Providers.Microsoft:
+                    if (char === "%" || char === "。")
+                        textDuration += 540;
+                    else if (splitSymbols.indexOf(char) !== -1)
+                        textDuration += 80;
+                    else
+                        textDuration += 180;
+                    break;
+                default:
+                    textDuration += 200;
+            }
+        });
+        return textDuration * factor;
+    }
+
     public toText(): string {
         return this.children.reduce((result, node) => result + node.toText(), "");
     }
 
-    public toTimeline(baseTime = 0, provider: Providers, declaimer: string, speechRate: number): any {
-        let timeline: any = [];
+    public toTimeline(timeline: any[], baseTime = 0, provider: Providers, declaimer: string, speechRate: number): any {
         this.children.forEach((node: any) => {
-            if(node.type === ElementTypes.Break)
-                baseTime += node.duration;
-            const result = node.toTimeline(baseTime, provider, declaimer, speechRate);
-            if(!result) return;
-            const { timeline: _timeline, duration } = result;
-            if(_timeline.length === 1)
-                timeline.push(_timeline[0]);
+            const latestIndex = timeline.length ? timeline.length - 1 : 0;
+            if (node.type === ElementTypes.Break) {
+                timeline[latestIndex].incomplete = true;
+                timeline[latestIndex].endTime += node.duration;
+            }
+            else if (node.type === ElementTypes.Raw) {
+                if (!node.value) return;
+                let texts = this.splitText(node.value.replace(/\n/g, ""));
+                if (!timeline[latestIndex])
+                    timeline[latestIndex] = { text: "", startTime: baseTime, endTime: baseTime };
+                if (texts.length === 1 || timeline[latestIndex].incomplete) {
+                    timeline[latestIndex].incomplete && delete timeline[latestIndex].incomplete;
+                    timeline[latestIndex].text += texts[0];
+                    timeline[latestIndex].endTime += this.parseTextDuration(texts[0], provider, declaimer, speechRate);
+                    texts = texts.slice(1);
+                }
+                let currentTime = timeline[latestIndex].endTime;
+                texts.forEach(text => {
+                    const duration = this.parseTextDuration(text, provider, declaimer, speechRate);
+                    timeline.push({
+                        text,
+                        startTime: currentTime,
+                        endTime: currentTime + duration
+                    });
+                    currentTime += duration;
+                });
+            }
             else
-                timeline = timeline.concat(_timeline);
-            baseTime += duration;
+                node.toTimeline(timeline, baseTime, provider, declaimer, speechRate);
         });
-        return {
-            timeline,
-            duration: baseTime
-        };
+        return timeline;
     }
 
     public static isInstance(value: any) {

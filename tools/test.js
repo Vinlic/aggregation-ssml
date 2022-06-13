@@ -1,6 +1,14 @@
 const { Document } = require("../dist");
 
-const ssml = '<speak provider="microsoft"><voice name="zh-cn-YunxiNeural"><prosody contenteditable="true" rate="1" volume="100"><p>欢迎<break contenteditable="false" time="2s">[2s]</break>收看本期国<phoneme contenteditable="false" ph="chéng" data-content="[=chéng]">盛</phoneme>证券</p></prosody></voice></speak>';
+const ssml = '<speak provider="microsoft">\
+<voice name="zh-cn-XiaoxiaoNeural">\
+  <mstts:express-as style="newscast">\
+    <prosody contenteditable="true" rate="1.2" volume="100">\
+      <p>近期市场担忧美联储货币政策收紧，和美债利率上升对中国市场的<break time="1s"/>影响。我们认为国内外的增长与通胀<break time="500ms"/>“内滞外胀”的特征愈发明显。本轮海外紧缩周期主要是因为海外部分经济体此前过度刺激，通胀高企，货币政策大幅滞后通胀所致。同时中国自身增长已经在底部徘徊，稳增长政策有望继续发力，在这样的综合背景之下，本轮海外紧缩对中国市场的影响可能会相对有限，资金外流及人民币贬值压力可能会小于往期。针对近期价值风格明显跑赢成长。我们认为目前稳增长政策仍相对积极，但成效尚需时日。叠加近期国内局部疫情影响，政策仍有进一步加力的空间，稳增长可能仍将是当前的主线。结合摸底期市场风险偏好整体偏低的特征，以及海外流动性收紧背景下，全球成长跑输价值的风格具备一致性，我们认为当前低估值的稳增长领域，仍有阶段性的相对配置价值</p>\
+    </prosody>\
+  </mstts:express-as>\
+</voice>\
+</speak>';
 
 const document = Document.parse(ssml);
 console.log(document.toSSML());

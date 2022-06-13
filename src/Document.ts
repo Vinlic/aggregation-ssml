@@ -87,21 +87,9 @@ class Document {
     }
 
     public toTimeline(baseTime = 0) {
-        let timeline: any = [];
-        this.children.forEach(node => {
-            const result = node.toTimeline(baseTime, this.provider, this.declaimer, this.speechRate);
-            if(!result) return;
-            const { timeline: _timeline, duration } = result;
-            if(_timeline.length === 1)
-                timeline.push(_timeline[0]);
-            else
-                timeline = timeline.concat(_timeline);
-            baseTime += duration;
-        });
-        return {
-            timeline,
-            duration: baseTime
-        };
+        const timeline: any[] = [];
+        this.children.forEach(node => node.toTimeline(timeline, baseTime, this.provider, this.declaimer, this.speechRate));
+        return timeline.slice(1);
     }
 
     public toSSML(pretty = false) {

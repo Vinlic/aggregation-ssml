@@ -49,8 +49,10 @@ declare class Element {
     find(path: string): Element;
     appendChild(node: Element): void;
     render(parent: any, provider: Providers): any;
+    splitText(value: string): string[];
+    parseTextDuration(text: string, provider: Providers, declaimer: string, speechRate: number): number;
     toText(): string;
-    toTimeline(baseTime: number | undefined, provider: Providers, declaimer: string, speechRate: number): any;
+    toTimeline(timeline: any[], baseTime: number | undefined, provider: Providers, declaimer: string, speechRate: number): any;
     static isInstance(value: any): boolean;
     set parent(obj: Document | Element | undefined);
     get parent(): Document | Element | undefined;
@@ -78,12 +80,7 @@ interface IDocumentOptions {
 declare class Raw extends Element {
     constructor(options: IElementOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
-    splitText(value: string): string[];
     toText(): string;
-    toTimeline(baseTime: number | undefined, provider: Providers, declaimer: string, speechRate: number): {
-        timeline: any;
-        duration: number;
-    } | null;
 }
 
 interface IAudioOptions extends IElementOptions {
@@ -363,10 +360,7 @@ declare class Document {
     find(path: string): Document | Element | undefined;
     appendChild(node: Element): void;
     toText(): string;
-    toTimeline(baseTime?: number): {
-        timeline: any;
-        duration: number;
-    };
+    toTimeline(baseTime?: number): any[];
     toSSML(pretty?: boolean): string;
     static parse(content: any): Document;
     get declaimer(): string;
