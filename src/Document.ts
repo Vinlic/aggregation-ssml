@@ -89,7 +89,7 @@ class Document {
     public toTimeline(baseTime = 0) {
         const timeline: any[] = [];
         this.children.forEach(node => node.toTimeline(timeline, baseTime, this.provider, this.declaimer, this.speechRate));
-        return timeline.slice(1);
+        return timeline[0] && timeline[0].text ? timeline : timeline.slice(1);
     }
 
     public toSSML(pretty = false) {

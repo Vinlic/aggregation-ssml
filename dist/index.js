@@ -1022,7 +1022,7 @@ var _Document = class {
   toTimeline(baseTime = 0) {
     const timeline = [];
     this.children.forEach((node) => node.toTimeline(timeline, baseTime, this.provider, this.declaimer, this.speechRate));
-    return timeline.slice(1);
+    return timeline[0] && timeline[0].text ? timeline : timeline.slice(1);
   }
   toSSML(pretty = false) {
     const root = (0, import_xmlbuilder2.create)();
