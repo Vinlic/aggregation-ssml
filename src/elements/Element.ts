@@ -6,6 +6,7 @@ import Providers from '../enums/Providers';
 import ElementFactory from '../ElementFactory';
 import TagNameMap from '../TagNameMap';
 import Document from '../Document';
+import { Break } from '../elements';
 import util from '../util';
 
 class Element {
@@ -14,7 +15,6 @@ class Element {
     public type: ElementTypes = ElementTypes.Element; //元素类型
     public value?: string;  //元素节点值
     public children: Element[] = [];  //元素子节点
-    protected disableValue = false;  //元素是否禁用值
     #parent?: Document | Element;  //父级指针
 
     constructor(options: IElementOptions, type = ElementTypes.Element) {
@@ -61,6 +61,30 @@ class Element {
         this.value && element.txt(this.value);
         this.children.forEach(node => node.render(element, provider));
         return element;
+    }
+
+    public toText(): string {
+        return this.children.reduce((result, node) => result + node.toText(), "");
+    }
+
+    public toTimeline(baseTime = 0, provider: Providers, declaimer: string, speechRate: number): any {
+        let timeline: any = [];
+        this.children.forEach((node: any) => {
+            if(node.type === ElementTypes.Break)
+                baseTime += node.duration;
+            const result = node.toTimeline(baseTime, provider, declaimer, speechRate);
+            if(!result) return;
+            const { timeline: _timeline, duration } = result;
+            if(_timeline.length === 1)
+                timeline.push(_timeline[0]);
+            else
+                timeline = timeline.concat(_timeline);
+            baseTime += duration;
+        });
+        return {
+            timeline,
+            duration: baseTime
+        };
     }
 
     public static isInstance(value: any) {

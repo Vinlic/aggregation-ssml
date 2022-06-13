@@ -65,6 +65,17 @@ export default {
     return parseFloat((milliseconds / 1000).toFixed(precision));
   },
 
+  timeStringToMilliseconds(timeString: string) {
+    switch(true) {
+      case /ms$/.test(timeString):
+        return parseInt(timeString);
+      case /s$/.test(timeString):
+        return parseInt(timeString) * 1000;
+      default:
+        return parseInt(timeString) || 0
+    }
+  },
+
   arrayParse(value: string | string[]): string[] {
     return this.isArray(value) ? value as string[] : [value as string];
   },

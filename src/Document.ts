@@ -82,6 +82,28 @@ class Document {
         this.children.push(node);
     }
 
+    public toText() {
+        return this.children.reduce((result, node) => result + node.toText(), "");
+    }
+
+    public toTimeline(baseTime = 0) {
+        let timeline: any = [];
+        this.children.forEach(node => {
+            const result = node.toTimeline(baseTime, this.provider, this.declaimer, this.speechRate);
+            if(!result) return;
+            const { timeline: _timeline, duration } = result;
+            if(_timeline.length === 1)
+                timeline.push(_timeline[0]);
+            else
+                timeline = timeline.concat(_timeline);
+            baseTime += duration;
+        });
+        return {
+            timeline,
+            duration: baseTime
+        };
+    }
+
     public toSSML(pretty = false) {
         const root = create();
         const speak = root.ele('speak');
@@ -148,6 +170,17 @@ class Document {
             return target;
         }
         return new Document(parse(xmlObject));
+    }
+
+    get declaimer() {
+        const voice = this.find("voice") as Voice;
+        return voice ? voice.name : "";
+    }
+
+    get speechRate() {
+        const prosody = this.find("voice.prosody") as Prosody;
+        if(!prosody) return 1;
+        return prosody.rate !== undefined ? prosody.rate : 1;
     }
 
 }

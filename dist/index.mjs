@@ -214,6 +214,16 @@ var util_default = __spreadProps(__spreadValues({}, lodash), {
   millisecondsToSenconds(milliseconds, precision = 3) {
     return parseFloat((milliseconds / 1e3).toFixed(precision));
   },
+  timeStringToMilliseconds(timeString) {
+    switch (true) {
+      case /ms$/.test(timeString):
+        return parseInt(timeString);
+      case /s$/.test(timeString):
+        return parseInt(timeString) * 1e3;
+      default:
+        return parseInt(timeString) || 0;
+    }
+  },
   arrayParse(value) {
     return this.isArray(value) ? value : [value];
   },
@@ -247,7 +257,6 @@ var _Element = class {
     __publicField(this, "type", ElementTypes_default.Element);
     __publicField(this, "value");
     __publicField(this, "children", []);
-    __publicField(this, "disableValue", false);
     __privateAdd(this, _parent, void 0);
     if (!util_default.isObject(options))
       throw new TypeError("options must be an object");
@@ -288,6 +297,29 @@ var _Element = class {
     this.children.forEach((node) => node.render(element, provider));
     return element;
   }
+  toText() {
+    return this.children.reduce((result, node) => result + node.toText(), "");
+  }
+  toTimeline(baseTime = 0, provider, declaimer, speechRate) {
+    let timeline = [];
+    this.children.forEach((node) => {
+      if (node.type === ElementTypes_default.Break)
+        baseTime += node.duration;
+      const result = node.toTimeline(baseTime, provider, declaimer, speechRate);
+      if (!result)
+        return;
+      const { timeline: _timeline, duration } = result;
+      if (_timeline.length === 1)
+        timeline.push(_timeline[0]);
+      else
+        timeline = timeline.concat(_timeline);
+      baseTime += duration;
+    });
+    return {
+      timeline,
+      duration: baseTime
+    };
+  }
   static isInstance(value) {
     return value instanceof _Element;
   }
@@ -304,12 +336,73 @@ __publicField(Element, "Type", ElementTypes_default);
 var Element_default = Element;
 
 // src/elements/Raw.ts
+var splitSymbols = [",", "\uFF0C", "\u3002", "!", "\uFF01", ";", "\uFF1B", ":", "\uFF1A"];
 var Raw = class extends Element_default {
   constructor(options, type = ElementTypes_default.Raw) {
     super(options, type);
   }
   render(parent, provider) {
     return super.render(parent, provider);
+  }
+  splitText(value) {
+    const texts = [];
+    let searchIndex = 0;
+    let foundIndex = 0;
+    while (foundIndex !== Infinity) {
+      foundIndex = Math.min(...splitSymbols.map((symbol) => {
+        const index = value.indexOf(symbol, searchIndex);
+        if (index === -1)
+          return Infinity;
+        return index;
+      }));
+      texts.push(value.substring(searchIndex, foundIndex));
+      searchIndex = foundIndex + 1;
+    }
+    return texts;
+  }
+  toText() {
+    return this.value || "";
+  }
+  toTimeline(baseTime = 0, provider, declaimer, speechRate) {
+    if (!this.value)
+      return null;
+    const texts = this.splitText(this.value.replace(/\n/g, ""));
+    const timeline = [];
+    const factor = 2 - speechRate;
+    let currentTime = baseTime;
+    texts.forEach((text) => {
+      let textDuration = 0;
+      const chars = text.split("");
+      chars.forEach((char) => {
+        switch (provider) {
+          case Providers_default.Aliyun:
+            if (char === "%" || char === "\u3002")
+              textDuration += 660;
+            else if (splitSymbols.indexOf(char) === -1)
+              textDuration += 100;
+            else
+              textDuration += 220;
+            break;
+          case Providers_default.Microsoft:
+            if (char === "%" || char === "\u3002")
+              textDuration += 540;
+            else if (splitSymbols.indexOf(char) === -1)
+              textDuration += 80;
+            else
+              textDuration += 180;
+            break;
+          default:
+            textDuration += 200;
+        }
+      });
+      textDuration = textDuration * factor;
+      timeline.push({
+        startTime: currentTime,
+        endTime: currentTime + textDuration
+      });
+      currentTime += textDuration;
+    });
+    return { timeline, duration: currentTime - baseTime };
   }
 };
 var Raw_default = Raw;
@@ -412,6 +505,9 @@ var Break = class extends Element_default {
         break;
     }
     return element;
+  }
+  get duration() {
+    return util_default.timeStringToMilliseconds(this.time);
   }
 };
 var Break_default = Break;
@@ -898,6 +994,27 @@ var _Document = class {
     node.parent = this;
     this.children.push(node);
   }
+  toText() {
+    return this.children.reduce((result, node) => result + node.toText(), "");
+  }
+  toTimeline(baseTime = 0) {
+    let timeline = [];
+    this.children.forEach((node) => {
+      const result = node.toTimeline(baseTime, this.provider, this.declaimer, this.speechRate);
+      if (!result)
+        return;
+      const { timeline: _timeline, duration } = result;
+      if (_timeline.length === 1)
+        timeline.push(_timeline[0]);
+      else
+        timeline = timeline.concat(_timeline);
+      baseTime += duration;
+    });
+    return {
+      timeline,
+      duration: baseTime
+    };
+  }
   toSSML(pretty = false) {
     const root = create();
     const speak = root.ele("speak");
@@ -969,6 +1086,16 @@ var _Document = class {
       return target;
     }
     return new _Document(parse(xmlObject));
+  }
+  get declaimer() {
+    const voice = this.find("voice");
+    return voice ? voice.name : "";
+  }
+  get speechRate() {
+    const prosody = this.find("voice.prosody");
+    if (!prosody)
+      return 1;
+    return prosody.rate !== void 0 ? prosody.rate : 1;
   }
 };
 var Document = _Document;

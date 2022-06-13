@@ -35,6 +35,10 @@ class Break extends Element {
         return element;
     }
 
+    get duration() {
+        return util.timeStringToMilliseconds(this.time);
+    }
+
 }
 
 export default Break;

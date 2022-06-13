@@ -45,11 +45,12 @@ declare class Element {
     type: ElementTypes;
     value?: string;
     children: Element[];
-    protected disableValue: boolean;
     constructor(options: IElementOptions, type?: ElementTypes);
     find(path: string): Element;
     appendChild(node: Element): void;
     render(parent: any, provider: Providers): any;
+    toText(): string;
+    toTimeline(baseTime: number | undefined, provider: Providers, declaimer: string, speechRate: number): any;
     static isInstance(value: any): boolean;
     set parent(obj: Document | Element | undefined);
     get parent(): Document | Element | undefined;
@@ -77,6 +78,12 @@ interface IDocumentOptions {
 declare class Raw extends Element {
     constructor(options: IElementOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
+    splitText(value: string): string[];
+    toText(): string;
+    toTimeline(baseTime: number | undefined, provider: Providers, declaimer: string, speechRate: number): {
+        timeline: any;
+        duration: number;
+    } | null;
 }
 
 interface IAudioOptions extends IElementOptions {
@@ -125,6 +132,7 @@ declare class Break extends Element {
     time: string;
     constructor(options: IBreakOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
+    get duration(): number;
 }
 
 interface ILanguageOptions$1 extends IElementOptions {
@@ -354,8 +362,15 @@ declare class Document {
     constructor(options: IDocumentOptions);
     find(path: string): Document | Element | undefined;
     appendChild(node: Element): void;
+    toText(): string;
+    toTimeline(baseTime?: number): {
+        timeline: any;
+        duration: number;
+    };
     toSSML(pretty?: boolean): string;
     static parse(content: any): Document;
+    get declaimer(): string;
+    get speechRate(): number;
 }
 
 export { Document, index as elements };
