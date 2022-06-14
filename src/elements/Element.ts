@@ -86,27 +86,26 @@ class Element {
         const factor = 2 - speechRate;
         let textDuration = 0;
         const chars = text.split("");
+        let halfCharDuration = 0, fullCharDuration = 0, splitSymbolDuration = 0;
+        switch (provider) {
+            case Providers.Aliyun:
+                halfCharDuration = 100;
+                fullCharDuration = 220;
+                break;
+            case Providers.Microsoft:
+                halfCharDuration = 80;
+                fullCharDuration = 180;
+            default:
+                halfCharDuration = 100;
+                fullCharDuration = 200;
+        }
         chars.forEach(char => {
-            switch (provider) {
-                case Providers.Aliyun:
-                    if (char === "%" || char === "。")
-                        textDuration += 660;
-                    else if (splitSymbols.indexOf(char) !== -1)
-                        textDuration += 100;
-                    else
-                        textDuration += 220;
-                    break;
-                case Providers.Microsoft:
-                    if (char === "%" || char === "。")
-                        textDuration += 540;
-                    else if (splitSymbols.indexOf(char) !== -1)
-                        textDuration += 80;
-                    else
-                        textDuration += 180;
-                    break;
-                default:
-                    textDuration += 200;
-            }
+            if (char === "%")
+                textDuration += fullCharDuration * 3;
+            else if(splitSymbols.indexOf(char) !== -1)
+                textDuration += halfCharDuration;
+            else
+                textDuration += fullCharDuration;
         });
         return textDuration * factor;
     }
