@@ -309,7 +309,8 @@ var _Element = class {
           return Infinity;
         return index;
       }));
-      texts.push(value.substring(searchIndex, foundIndex));
+      const temp = value.substring(searchIndex, foundIndex);
+      temp && texts.push(temp);
       searchIndex = foundIndex + 1;
     }
     return texts;

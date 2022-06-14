@@ -75,7 +75,8 @@ class Element {
                 if (index === -1) return Infinity;
                 return index;
             })));  //寻找距离最近的切分符号
-            texts.push(value.substring(searchIndex, foundIndex));  //切分文本内容
+            const temp = value.substring(searchIndex, foundIndex);
+            temp && texts.push(temp);  //切分文本内容
             searchIndex = foundIndex + 1;
         }
         return texts;
