@@ -67,6 +67,7 @@ interface IElementOptions {
 interface IDocumentOptions {
     type?: string;
     provider?: string;
+    solution?: string;
     version?: string;
     language?: string;
     xmlns?: string;
@@ -348,6 +349,7 @@ declare class Document {
     static readonly type = "document";
     type: string;
     provider: Providers;
+    solution?: string;
     version: string;
     language: string;
     xmlns: string;
