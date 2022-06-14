@@ -366,6 +366,7 @@ declare class Document {
     toSSML(pretty?: boolean): string;
     static parse(content: any): Document;
     get declaimer(): string;
+    get volume(): number;
     get speechRate(): number;
 }
 

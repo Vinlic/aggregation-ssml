@@ -167,6 +167,12 @@ class Document {
         return voice ? voice.name : "";
     }
 
+    get volume() {
+        const prosody = this.find("voice.prosody") as Prosody;
+        if(!prosody) return 100;
+        return prosody.volume !== undefined ? prosody.volume : 100;
+    }
+
     get speechRate() {
         const prosody = this.find("voice.prosody") as Prosody;
         if(!prosody) return 1;

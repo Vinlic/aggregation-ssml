@@ -1102,6 +1102,12 @@ var _Document = class {
     const voice = this.find("voice");
     return voice ? voice.name : "";
   }
+  get volume() {
+    const prosody = this.find("voice.prosody");
+    if (!prosody)
+      return 100;
+    return prosody.volume !== void 0 ? prosody.volume : 100;
+  }
   get speechRate() {
     const prosody = this.find("voice.prosody");
     if (!prosody)
