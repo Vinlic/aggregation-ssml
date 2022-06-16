@@ -8,7 +8,7 @@ import util from '../util';
 
 class Voice extends Element {
 
-    public name = '';  //发音人模型
+    public name?: string;  //发音人模型
     public gender?: string;  //发音人性别
     public age?: number;  //发音人年龄
     public variant?: string;  //语音特征值
@@ -21,7 +21,7 @@ class Voice extends Element {
         util.optionsInject(this, options, {
             age: (v: any) => !util.isUndefined(v) ? Number(v) : v
         }, {
-            name: (v: any) => util.isString(v),
+            name: (v: any) => util.isUndefined(v) || util.isString(v),
             gender: (v: any) => util.isUndefined(v) || util.isString(v),
             age: (v: any) => util.isUndefined(v) || util.isFinite(v),
             variant: (v: any) => util.isUndefined(v) || util.isString(v),

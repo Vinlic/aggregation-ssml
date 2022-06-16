@@ -107,7 +107,7 @@ class Document {
                 if(voice) {
                     prosody = (voice.find("prosody") || this.find("prosody")) as Prosody;
                     backgroundAudio = (voice.find("backgroundaudio") || this.find("backgroundaudio")) as BackgroundAudio;
-                    speak.att("voice", voice.name);
+                    voice.name && speak.att("voice", voice.name);
                 }
                 speak.att("encodeType", this.format);
                 this.sampleRate && speak.att("sampleRate", this.sampleRate);
@@ -164,7 +164,7 @@ class Document {
 
     get declaimer() {
         const voice = this.find("voice") as Voice;
-        return voice ? voice.name : "";
+        return voice ? voice.name || "" : "";
     }
 
     get volume() {

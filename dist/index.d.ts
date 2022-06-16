@@ -45,7 +45,7 @@ declare class Element {
     type: ElementTypes;
     value?: string;
     children: Element[];
-    constructor(options: IElementOptions, type?: ElementTypes);
+    constructor(options?: IElementOptions, type?: ElementTypes);
     find(path: string): Element;
     appendChild(node: Element): void;
     render(parent: any, provider: Providers): any;
@@ -239,7 +239,7 @@ interface IVoiceOptions extends IElementOptions {
 }
 
 declare class Voice extends Element {
-    name: string;
+    name?: string;
     gender?: string;
     age?: number;
     variant?: string;

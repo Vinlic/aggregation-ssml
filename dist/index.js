@@ -276,7 +276,7 @@ var util_default = __spreadProps(__spreadValues({}, import_lodash.default), {
 var splitSymbols = [",", "\uFF0C", "\u3002", "!", "\uFF01", ";", "\uFF1B", ":", "\uFF1A"];
 var _parent;
 var _Element = class {
-  constructor(options, type = ElementTypes_default.Element) {
+  constructor(options = {}, type = ElementTypes_default.Element) {
     __publicField(this, "type", ElementTypes_default.Element);
     __publicField(this, "value");
     __publicField(this, "children", []);
@@ -798,7 +798,7 @@ var Subsitute_default = Subsitute;
 
 // src/elements/Voice.ts
 var Voice = class extends Element_default {
-  name = "";
+  name;
   gender;
   age;
   variant;
@@ -810,7 +810,7 @@ var Voice = class extends Element_default {
     util_default.optionsInject(this, options, {
       age: (v) => !util_default.isUndefined(v) ? Number(v) : v
     }, {
-      name: (v) => util_default.isString(v),
+      name: (v) => util_default.isUndefined(v) || util_default.isString(v),
       gender: (v) => util_default.isUndefined(v) || util_default.isString(v),
       age: (v) => util_default.isUndefined(v) || util_default.isFinite(v),
       variant: (v) => util_default.isUndefined(v) || util_default.isString(v),
@@ -1039,7 +1039,7 @@ var _Document = class {
         if (voice) {
           prosody = voice.find("prosody") || this.find("prosody");
           backgroundAudio = voice.find("backgroundaudio") || this.find("backgroundaudio");
-          speak.att("voice", voice.name);
+          voice.name && speak.att("voice", voice.name);
         }
         speak.att("encodeType", this.format);
         this.sampleRate && speak.att("sampleRate", this.sampleRate);
@@ -1100,7 +1100,7 @@ var _Document = class {
   }
   get declaimer() {
     const voice = this.find("voice");
-    return voice ? voice.name : "";
+    return voice ? voice.name || "" : "";
   }
   get volume() {
     const prosody = this.find("voice.prosody");

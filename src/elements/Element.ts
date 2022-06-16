@@ -19,7 +19,7 @@ class Element {
     public children: Element[] = [];  //元素子节点
     #parent?: Document | Element;  //父级指针
 
-    constructor(options: IElementOptions, type = ElementTypes.Element) {
+    constructor(options: IElementOptions = {}, type = ElementTypes.Element) {
         if (!util.isObject(options)) throw new TypeError('options must be an object');
         this.type = type;
         util.optionsInject(this, options, {
