@@ -41,6 +41,8 @@ class SayAs extends Element {
             break;
             default:
                 element.att("interpret-as", this.interpretAs);
+                element.att("format", this.format);
+                element.att("detail", this.detail);
         }
         return element;
     }

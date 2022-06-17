@@ -34,6 +34,7 @@ class Prosody extends Element {
     render(parent: any, provider: Providers) {
         const element = super.render(parent, provider);
         switch(provider) {
+            case Providers.Aggregation:
             case Providers.Microsoft:
                 element.att("pitch", this.pitch ? `${parseInt((this.pitch * 50 - 50).toString())}%` : undefined);
                 element.att("contour", this.contour);

@@ -101,6 +101,14 @@ class Document {
         speak.att("xml:lang", this.language);
         speak.att("xmlns", this.xmlns);
         switch(this.provider) {
+            case Providers.Aggregation:
+                speak.att('provider', this.provider);
+                this.solution && speak.att('solution', this.solution);
+                speak.att("format", this.format);
+                this.sampleRate && speak.att("sampleRate", this.sampleRate);
+                this.effect && speak.att("effect", this.effect);
+                this.effectValue && speak.att("effectValue", this.effectValue);
+            break;
             case Providers.Aliyun:
                 const voice = this.find("voice") as Voice;
                 let prosody, backgroundAudio;
@@ -177,6 +185,11 @@ class Document {
         const prosody = this.find("voice.prosody") as Prosody;
         if(!prosody) return 1;
         return prosody.rate !== undefined ? prosody.rate : 1;
+    }
+
+    get duration() {
+        const timeline = this.toTimeline();
+        return timeline[timeline.length - 1] ? timeline[timeline.length].endTime : 0;
     }
 
 }

@@ -32,6 +32,7 @@ class Voice extends Element {
     render(parent: any, provider: Providers) {
         const element = super.render(parent, provider);
         switch (provider) {
+            case Providers.Aggregation:
             case Providers.Microsoft:
                 element.att("name", this.name);
                 element.att("age", this.age);

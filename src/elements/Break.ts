@@ -27,6 +27,7 @@ class Break extends Element {
         const element = super.render(parent, provider);
         element.att("time", this.time);
         switch(provider) {
+            case Providers.Aggregation:
             case Providers.Aliyun:
             case Providers.YunXiaoWei:
                 element.att("strength", this.strength);

@@ -20,6 +20,7 @@ class Lexicon extends Element {
     render(parent: any, provider: Providers) {
         const element = super.render(parent, provider);
         switch(provider) {
+            case Providers.Aggregation:
             case Providers.Microsoft:
                 element.att("uri", this.uri);
             break;

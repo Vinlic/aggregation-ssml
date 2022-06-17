@@ -127,6 +127,7 @@ __export(elements_exports, {
 // src/enums/Providers.ts
 var Providers = /* @__PURE__ */ ((Providers2) => {
   Providers2["Unknown"] = "unknown";
+  Providers2["Aggregation"] = "aggregation";
   Providers2["Aliyun"] = "aliyun";
   Providers2["Microsoft"] = "microsoft";
   Providers2["Huawei"] = "huawei";
@@ -142,6 +143,24 @@ var Providers_default = Providers;
 
 // src/TagNameMap.ts
 var TagNameMap_default = {
+  [Providers_default.Aggregation]: {
+    [ElementTypes_default.Voice]: "voice",
+    [ElementTypes_default.Language]: "lang",
+    [ElementTypes_default.Paragraph]: "p",
+    [ElementTypes_default.Word]: "w",
+    [ElementTypes_default.Sentence]: "s",
+    [ElementTypes_default.Break]: "break",
+    [ElementTypes_default.Phoneme]: "phoneme",
+    [ElementTypes_default.Lexicon]: "lexicon",
+    [ElementTypes_default.Prosody]: "prosody",
+    [ElementTypes_default.SayAs]: "say-as",
+    [ElementTypes_default.Subsitute]: "sub",
+    [ElementTypes_default.Bookmark]: "bookmark",
+    [ElementTypes_default.ExpressAs]: "express-as",
+    [ElementTypes_default.Silence]: "silence",
+    [ElementTypes_default.BackgroundAudio]: "backgroundAudio",
+    [ElementTypes_default.Audio]: "audio"
+  },
   [Providers_default.Aliyun]: {
     [ElementTypes_default.Word]: "w",
     [ElementTypes_default.Sentence]: "s",
@@ -493,6 +512,7 @@ var Bookmark = class extends Element_default {
   render(parent, provider) {
     const element = super.render(parent, provider);
     switch (provider) {
+      case Providers_default.Aggregation:
       case Providers_default.Microsoft:
         element.att("mark", this.mark);
         break;
@@ -521,6 +541,7 @@ var Break = class extends Element_default {
     const element = super.render(parent, provider);
     element.att("time", this.time);
     switch (provider) {
+      case Providers_default.Aggregation:
       case Providers_default.Aliyun:
       case Providers_default.YunXiaoWei:
         element.att("strength", this.strength);
@@ -546,6 +567,7 @@ var Language = class extends Element_default {
   render(parent, provider) {
     const element = super.render(parent, provider);
     switch (provider) {
+      case Providers_default.Aggregation:
       case Providers_default.Microsoft:
         element.att("xml:lang", this.language);
         break;
@@ -567,6 +589,7 @@ var Lexicon = class extends Element_default {
   render(parent, provider) {
     const element = super.render(parent, provider);
     switch (provider) {
+      case Providers_default.Aggregation:
       case Providers_default.Microsoft:
         element.att("uri", this.uri);
         break;
@@ -709,6 +732,7 @@ var Prosody = class extends Element_default {
   render(parent, provider) {
     const element = super.render(parent, provider);
     switch (provider) {
+      case Providers_default.Aggregation:
       case Providers_default.Microsoft:
         element.att("pitch", this.pitch ? `${parseInt((this.pitch * 50 - 50).toString())}%` : void 0);
         element.att("contour", this.contour);
@@ -762,6 +786,8 @@ var SayAs = class extends Element_default {
         break;
       default:
         element.att("interpret-as", this.interpretAs);
+        element.att("format", this.format);
+        element.att("detail", this.detail);
     }
     return element;
   }
@@ -820,6 +846,7 @@ var Voice = class extends Element_default {
   render(parent, provider) {
     const element = super.render(parent, provider);
     switch (provider) {
+      case Providers_default.Aggregation:
       case Providers_default.Microsoft:
         element.att("name", this.name);
         element.att("age", this.age);
@@ -862,6 +889,7 @@ var ExpressAs = class extends Element_default {
   render(parent, provider) {
     const element = super.render(parent, provider);
     switch (provider) {
+      case Providers_default.Aggregation:
       case Providers_default.Microsoft:
         element.att("style", this.style);
         element.att("styledegree", this.styledegree);
@@ -889,6 +917,7 @@ var Silence = class extends Element_default {
   render(parent, provider) {
     const element = super.render(parent, provider);
     switch (provider) {
+      case Providers_default.Aggregation:
       case Providers_default.Microsoft:
         element.att("type", this._type);
         element.att("value", this._value);
@@ -1033,6 +1062,14 @@ var _Document = class {
     speak.att("xml:lang", this.language);
     speak.att("xmlns", this.xmlns);
     switch (this.provider) {
+      case Providers_default.Aggregation:
+        speak.att("provider", this.provider);
+        this.solution && speak.att("solution", this.solution);
+        speak.att("format", this.format);
+        this.sampleRate && speak.att("sampleRate", this.sampleRate);
+        this.effect && speak.att("effect", this.effect);
+        this.effectValue && speak.att("effectValue", this.effectValue);
+        break;
       case Providers_default.Aliyun:
         const voice = this.find("voice");
         let prosody, backgroundAudio;
@@ -1113,6 +1150,10 @@ var _Document = class {
     if (!prosody)
       return 1;
     return prosody.rate !== void 0 ? prosody.rate : 1;
+  }
+  get duration() {
+    const timeline = this.toTimeline();
+    return timeline[timeline.length - 1] ? timeline[timeline.length].endTime : 0;
   }
 };
 var Document = _Document;

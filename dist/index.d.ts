@@ -28,6 +28,7 @@ declare enum ElementTypes {
 
 declare enum Providers {
     Unknown = "unknown",
+    Aggregation = "aggregation",
     Aliyun = "aliyun",
     Microsoft = "microsoft",
     Huawei = "huawei",
@@ -368,6 +369,7 @@ declare class Document {
     get declaimer(): string;
     get volume(): number;
     get speechRate(): number;
+    get duration(): any;
 }
 
 export { Document, index as elements };

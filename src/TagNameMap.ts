@@ -2,6 +2,24 @@ import Providers from './enums/Providers';
 import ElementTypes from './enums/ElementTypes';
 
 export default {
+    [Providers.Aggregation]: {
+        [ElementTypes.Voice]: 'voice',
+        [ElementTypes.Language]: 'lang',
+        [ElementTypes.Paragraph]: 'p',
+        [ElementTypes.Word]: 'w',
+        [ElementTypes.Sentence]: 's',
+        [ElementTypes.Break]: 'break',
+        [ElementTypes.Phoneme]: 'phoneme',
+        [ElementTypes.Lexicon]: 'lexicon',
+        [ElementTypes.Prosody]: 'prosody',
+        [ElementTypes.SayAs]: "say-as",
+        [ElementTypes.Subsitute]: "sub",
+        [ElementTypes.Bookmark]: "bookmark",
+        [ElementTypes.ExpressAs]: "express-as",
+        [ElementTypes.Silence]: "silence",
+        [ElementTypes.BackgroundAudio]: "backgroundAudio",
+        [ElementTypes.Audio]: "audio",
+    },
     [Providers.Aliyun]: {
         [ElementTypes.Word]: 'w',
         [ElementTypes.Sentence]: 's',

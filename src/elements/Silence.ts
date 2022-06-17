@@ -24,6 +24,7 @@ class Silence extends Element {
     render(parent: any, provider: Providers) {
         const element = super.render(parent, provider);
         switch (provider) {
+            case Providers.Aggregation:
             case Providers.Microsoft:
                 element.att("type", this._type);
                 element.att("value", this._value);
