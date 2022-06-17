@@ -22,7 +22,8 @@ class Document {
 
     public static readonly type = 'document'; // type标识
     public type = ''; // 文档type必须为document
-    public provider = Providers.Unknown;  //服务提供商
+    public provider = Providers.Aggregation;  //服务提供商
+    public realProvider?: Providers;  //服务真实提供商
     public solution?: string;  //虚拟人形象
     public version = '';  //文档版本
     public language = '';  //根文档语言
@@ -38,6 +39,7 @@ class Document {
         util.optionsInject(this, options, {
             type: () => 'document',
             provider: (v: any) => !util.isUndefined(v) ? v as Providers : v,
+            realProvider: (v: any) => !util.isUndefined(v) ? v as Providers : v,
             version: (v: any) => util.defaultTo(v, '1.0'),
             language: (v: any) => util.defaultTo(v, 'zh-cn'),
             xmlns: (v: any) => util.defaultTo(v, 'http://www.w3.org/2001/10/synthesis'),
@@ -53,6 +55,7 @@ class Document {
         }, {
             type: (v: any) => v === "document",
             provider: (v: any) => Object.values(Providers).includes(v),
+            realProvider: (v: any) => util.isUndefined(v) || Object.values(Providers).includes(v),
             solution: (v: any) => util.isUndefined(v) || util.isString(v),
             version: (v: any) => util.isString(v),
             language: (v: any) => util.isString(v),
@@ -102,7 +105,7 @@ class Document {
         speak.att("xmlns", this.xmlns);
         switch(this.provider) {
             case Providers.Aggregation:
-                speak.att('provider', this.provider);
+                speak.att('provider', this.realProvider || this.provider);  //使用真实的提供商
                 this.solution && speak.att('solution', this.solution);
                 speak.att("format", this.format);
                 this.sampleRate && speak.att("sampleRate", this.sampleRate);

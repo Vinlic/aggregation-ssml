@@ -104,7 +104,6 @@ __export(elements_exports, {
 
 // src/enums/Providers.ts
 var Providers = /* @__PURE__ */ ((Providers2) => {
-  Providers2["Unknown"] = "unknown";
   Providers2["Aggregation"] = "aggregation";
   Providers2["Aliyun"] = "aliyun";
   Providers2["Microsoft"] = "microsoft";
@@ -969,7 +968,8 @@ var xmlParser = new XMLParser({
 });
 var _Document = class {
   type = "";
-  provider = Providers_default.Unknown;
+  provider = Providers_default.Aggregation;
+  realProvider;
   solution;
   version = "";
   language = "";
@@ -985,6 +985,7 @@ var _Document = class {
     util_default.optionsInject(this, options, {
       type: () => "document",
       provider: (v) => !util_default.isUndefined(v) ? v : v,
+      realProvider: (v) => !util_default.isUndefined(v) ? v : v,
       version: (v) => util_default.defaultTo(v, "1.0"),
       language: (v) => util_default.defaultTo(v, "zh-cn"),
       xmlns: (v) => util_default.defaultTo(v, "http://www.w3.org/2001/10/synthesis"),
@@ -997,6 +998,7 @@ var _Document = class {
     }, {
       type: (v) => v === "document",
       provider: (v) => Object.values(Providers_default).includes(v),
+      realProvider: (v) => util_default.isUndefined(v) || Object.values(Providers_default).includes(v),
       solution: (v) => util_default.isUndefined(v) || util_default.isString(v),
       version: (v) => util_default.isString(v),
       language: (v) => util_default.isString(v),
@@ -1041,7 +1043,7 @@ var _Document = class {
     speak.att("xmlns", this.xmlns);
     switch (this.provider) {
       case Providers_default.Aggregation:
-        speak.att("provider", this.provider);
+        speak.att("provider", this.realProvider || this.provider);
         this.solution && speak.att("solution", this.solution);
         speak.att("format", this.format);
         this.sampleRate && speak.att("sampleRate", this.sampleRate);

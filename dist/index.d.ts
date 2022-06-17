@@ -27,7 +27,6 @@ declare enum ElementTypes {
 }
 
 declare enum Providers {
-    Unknown = "unknown",
     Aggregation = "aggregation",
     Aliyun = "aliyun",
     Microsoft = "microsoft",
@@ -68,6 +67,7 @@ interface IElementOptions {
 interface IDocumentOptions {
     type?: string;
     provider?: string;
+    realProvider?: string;
     solution?: string;
     version?: string;
     language?: string;
@@ -350,6 +350,7 @@ declare class Document {
     static readonly type = "document";
     type: string;
     provider: Providers;
+    realProvider?: Providers;
     solution?: string;
     version: string;
     language: string;
