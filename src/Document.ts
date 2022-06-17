@@ -148,7 +148,7 @@ class Document {
         return speak.end({ prettyPrint: pretty, headless: true });
     }
 
-    public static parse(content: any) {
+    public static parse(content: any, provider?: Providers) {
         if (!util.isString(content) && !util.isObject(content)) throw new TypeError('content must be an string or object');
         if (util.isObject(content)) return new Document(content);
         if (!/\<speak/.test(content)) return new Document(JSON.parse(content));
@@ -170,7 +170,9 @@ class Document {
             });
             return target;
         }
-        return new Document(parse(xmlObject));
+        const options = parse(xmlObject);
+        provider && (options.provider = provider);
+        return new Document(options);
     }
 
     get declaimer() {
@@ -192,7 +194,7 @@ class Document {
 
     get duration() {
         const timeline = this.toTimeline();
-        return timeline[timeline.length - 1] ? timeline[timeline.length].endTime : 0;
+        return timeline[timeline.length - 1] ? timeline[timeline.length - 1].endTime : 0;
     }
 
 }

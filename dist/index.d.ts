@@ -366,11 +366,11 @@ declare class Document {
     toText(): string;
     toTimeline(baseTime?: number): any[];
     toSSML(pretty?: boolean): string;
-    static parse(content: any): Document;
+    static parse(content: any, provider?: Providers): Document;
     get declaimer(): string;
     get volume(): number;
     get speechRate(): number;
     get duration(): any;
 }
 
-export { Document, index as elements };
+export { Document, Providers, index as elements };

@@ -62,6 +62,7 @@ var __privateSet = (obj, member, value, setter) => {
 var src_exports = {};
 __export(src_exports, {
   Document: () => Document_default,
+  Providers: () => Providers_default,
   elements: () => elements_exports
 });
 module.exports = __toCommonJS(src_exports);
@@ -1107,7 +1108,7 @@ var _Document = class {
     this.children.forEach((node) => node.render(speak, this.provider));
     return speak.end({ prettyPrint: pretty, headless: true });
   }
-  static parse(content) {
+  static parse(content, provider) {
     if (!util_default.isString(content) && !util_default.isObject(content))
       throw new TypeError("content must be an string or object");
     if (util_default.isObject(content))
@@ -1135,7 +1136,9 @@ var _Document = class {
       });
       return target;
     }
-    return new _Document(parse(xmlObject));
+    const options = parse(xmlObject);
+    provider && (options.provider = provider);
+    return new _Document(options);
   }
   get declaimer() {
     const voice = this.find("voice");
@@ -1155,7 +1158,7 @@ var _Document = class {
   }
   get duration() {
     const timeline = this.toTimeline();
-    return timeline[timeline.length - 1] ? timeline[timeline.length].endTime : 0;
+    return timeline[timeline.length - 1] ? timeline[timeline.length - 1].endTime : 0;
   }
 };
 var Document = _Document;
@@ -1165,5 +1168,6 @@ var Document_default = Document;
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   Document,
+  Providers,
   elements
 });
