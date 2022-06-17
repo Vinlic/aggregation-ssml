@@ -13,7 +13,7 @@ class BackgroundAudio extends Element {
     public fadeIn?: number;  //音频淡入时长
     public fadeOut?: number;  //音频淡出时长
 
-    constructor(options: IBackgroundAudioOptions, type = ElementTypes.BackgroundAudio) {
+    constructor(options: IBackgroundAudioOptions = {}, type = ElementTypes.BackgroundAudio) {
         super(options, type);
         util.optionsInject(this, options, {
             volume: (v: any) => Number(util.defaultTo(v, 1)),

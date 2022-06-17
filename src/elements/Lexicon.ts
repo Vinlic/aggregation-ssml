@@ -10,7 +10,7 @@ class Lexicon extends Element {
 
     public uri = '';  //外部PLS文档地址
 
-    constructor(options: ILexiconOptions, type = ElementTypes.Lexicon) {
+    constructor(options: ILexiconOptions = {}, type = ElementTypes.Lexicon) {
         super(options, type);
         util.optionsInject(this, options, {}, {
             uri: (v: any) => util.isString(v)

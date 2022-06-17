@@ -7,7 +7,7 @@ import Element from './Element';
 
 class Sentence extends Element {
 
-    constructor(options: ISentenceOptions, type = ElementTypes.Sentence) {
+    constructor(options: ISentenceOptions = {}, type = ElementTypes.Sentence) {
         super(options, type);
     }
 

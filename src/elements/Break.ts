@@ -11,7 +11,7 @@ class Break extends Element {
     public strength?: string;  //指定暂停的相对持续时间
     public time = '';  //指定暂停的绝对持续时间
 
-    constructor(options: IBreakOptions, type = ElementTypes.Break) {
+    constructor(options: IBreakOptions = {}, type = ElementTypes.Break) {
         super(options, type);
         util.optionsInject(this, options, {
             strength: (v: any) => !util.isUndefined(v) ? v.toString() : v,

@@ -10,7 +10,7 @@ class Subsitute extends Element {
 
     public alias = '';  //文本替换别名
 
-    constructor(options: ISubsituteOptions, type = ElementTypes.Subsitute) {
+    constructor(options: ISubsituteOptions = {}, type = ElementTypes.Subsitute) {
         super(options, type);
         util.optionsInject(this, options, {}, {
             alias: (v: any) => util.isString(v)

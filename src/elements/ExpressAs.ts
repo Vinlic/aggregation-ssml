@@ -12,7 +12,7 @@ class ExpressAs extends Element {
     public styledegree?: number;  //讲话风格强度
     public role?: string;  //讲话角色
 
-    constructor(options: IExpressAsOptions, type = ElementTypes.ExpressAs) {
+    constructor(options: IExpressAsOptions = {}, type = ElementTypes.ExpressAs) {
         super(options, type);
         util.optionsInject(this, options, {
             styledegree: (v: any) => !util.isUndefined(v) ? Number(v) : v

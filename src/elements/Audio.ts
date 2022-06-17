@@ -10,7 +10,7 @@ class Audio extends Element {
 
     public src = '';  //音频路径
 
-    constructor(options: IAudioOptions, type = ElementTypes.Audio) {
+    constructor(options: IAudioOptions = {}, type = ElementTypes.Audio) {
         super(options, type);
         util.optionsInject(this, options, {}, {
             src: (v: any) => util.isString(v)

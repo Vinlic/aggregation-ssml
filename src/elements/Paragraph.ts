@@ -7,7 +7,7 @@ import Element from './Element';
 
 class Paragraph extends Element {
 
-    constructor(options: IParagraphOptions, type = ElementTypes.Paragraph) {
+    constructor(options: IParagraphOptions = {}, type = ElementTypes.Paragraph) {
         super(options, type);
     }
 

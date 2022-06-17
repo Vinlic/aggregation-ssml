@@ -14,7 +14,7 @@ class Voice extends Element {
     public variant?: string;  //语音特征值
     public language?: string;  //发音语言列表
 
-    constructor(options: IVoiceOptions, type = ElementTypes.Voice) {
+    constructor(options: IVoiceOptions = {}, type = ElementTypes.Voice) {
         super(options, type);
         options.gender = options.gender || options["xml:gender"];
         options.language = options.language || options["xml:lang"];

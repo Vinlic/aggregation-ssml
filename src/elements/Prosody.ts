@@ -15,7 +15,7 @@ class Prosody extends Element {
     public duration?: string;  //语音时长
     public volume?: number;  //语音音量
 
-    constructor(options: IProsodyOptions, type = ElementTypes.Prosody) {
+    constructor(options: IProsodyOptions = {}, type = ElementTypes.Prosody) {
         super(options, type);
         util.optionsInject(this, options, {
             pitch: (v: any) => util.isUndefined(v) ? v : Number(v),

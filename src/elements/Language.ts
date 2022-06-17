@@ -10,7 +10,7 @@ class Language extends Element {
 
     public language = '';  //指定发音语言
 
-    constructor(options: ILanguageOptions, type = ElementTypes.Language) {
+    constructor(options: ILanguageOptions = {}, type = ElementTypes.Language) {
         super(options, type);
         util.optionsInject(this, options, {}, {
             language: (v: any) => util.isString(v)

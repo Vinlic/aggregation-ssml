@@ -22,7 +22,7 @@ class Phoneme extends Element {
     public alphabet = '';  //指定音标
     public ph?: string;  //指定文本读音串
 
-    constructor(options: IPhonemeOptions, type = ElementTypes.Phoneme) {
+    constructor(options: IPhonemeOptions = {}, type = ElementTypes.Phoneme) {
         super(options, type);
         util.optionsInject(this, options, {
             alphabet: (v: any) => util.defaultTo(v, "py")

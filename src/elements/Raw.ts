@@ -7,7 +7,7 @@ import Element from './Element';
 
 class Raw extends Element {
 
-    constructor(options: IElementOptions, type = ElementTypes.Raw) {
+    constructor(options: IElementOptions = {}, type = ElementTypes.Raw) {
         super(options, type);
     }
 

@@ -413,7 +413,7 @@ var Element_default = Element;
 
 // src/elements/Raw.ts
 var Raw = class extends Element_default {
-  constructor(options, type = ElementTypes_default.Raw) {
+  constructor(options = {}, type = ElementTypes_default.Raw) {
     super(options, type);
   }
   render(parent, provider) {
@@ -428,7 +428,7 @@ var Raw_default = Raw;
 // src/elements/Audio.ts
 var Audio = class extends Element_default {
   src = "";
-  constructor(options, type = ElementTypes_default.Audio) {
+  constructor(options = {}, type = ElementTypes_default.Audio) {
     super(options, type);
     util_default.optionsInject(this, options, {}, {
       src: (v) => util_default.isString(v)
@@ -448,7 +448,7 @@ var BackgroundAudio = class extends Element_default {
   volume = 1;
   fadeIn;
   fadeOut;
-  constructor(options, type = ElementTypes_default.BackgroundAudio) {
+  constructor(options = {}, type = ElementTypes_default.BackgroundAudio) {
     super(options, type);
     util_default.optionsInject(this, options, {
       volume: (v) => Number(util_default.defaultTo(v, 1)),
@@ -480,7 +480,7 @@ var BackgroundAudio_default = BackgroundAudio;
 // src/elements/Bookmark.ts
 var Bookmark = class extends Element_default {
   mark = "";
-  constructor(options, type = ElementTypes_default.Bookmark) {
+  constructor(options = {}, type = ElementTypes_default.Bookmark) {
     super(options, type);
     util_default.optionsInject(this, options, {}, {
       mark: (v) => util_default.isString(v)
@@ -503,7 +503,7 @@ var Bookmark_default = Bookmark;
 var Break = class extends Element_default {
   strength;
   time = "";
-  constructor(options, type = ElementTypes_default.Break) {
+  constructor(options = {}, type = ElementTypes_default.Break) {
     super(options, type);
     util_default.optionsInject(this, options, {
       strength: (v) => !util_default.isUndefined(v) ? v.toString() : v,
@@ -535,7 +535,7 @@ var Break_default = Break;
 // src/elements/Language.ts
 var Language = class extends Element_default {
   language = "";
-  constructor(options, type = ElementTypes_default.Language) {
+  constructor(options = {}, type = ElementTypes_default.Language) {
     super(options, type);
     util_default.optionsInject(this, options, {}, {
       language: (v) => util_default.isString(v)
@@ -557,7 +557,7 @@ var Language_default = Language;
 // src/elements/Lexicon.ts
 var Lexicon = class extends Element_default {
   uri = "";
-  constructor(options, type = ElementTypes_default.Lexicon) {
+  constructor(options = {}, type = ElementTypes_default.Lexicon) {
     super(options, type);
     util_default.optionsInject(this, options, {}, {
       uri: (v) => util_default.isString(v)
@@ -578,7 +578,7 @@ var Lexicon_default = Lexicon;
 
 // src/elements/Paragraph.ts
 var Paragraph = class extends Element_default {
-  constructor(options, type = ElementTypes_default.Paragraph) {
+  constructor(options = {}, type = ElementTypes_default.Paragraph) {
     super(options, type);
   }
   render(parent, provider) {
@@ -619,7 +619,7 @@ var regExp = new RegExp(vowelTones.join("|"), "g");
 var Phoneme = class extends Element_default {
   alphabet = "";
   ph;
-  constructor(options, type = ElementTypes_default.Phoneme) {
+  constructor(options = {}, type = ElementTypes_default.Phoneme) {
     super(options, type);
     util_default.optionsInject(this, options, {
       alphabet: (v) => util_default.defaultTo(v, "py")
@@ -691,7 +691,7 @@ var Prosody = class extends Element_default {
   rate;
   duration;
   volume;
-  constructor(options, type = ElementTypes_default.Prosody) {
+  constructor(options = {}, type = ElementTypes_default.Prosody) {
     super(options, type);
     util_default.optionsInject(this, options, {
       pitch: (v) => util_default.isUndefined(v) ? v : Number(v),
@@ -735,7 +735,7 @@ var SayAs = class extends Element_default {
   interpretAs = "";
   format;
   detail;
-  constructor(options, type = ElementTypes_default.SayAs) {
+  constructor(options = {}, type = ElementTypes_default.SayAs) {
     super(options, type);
     options.interpretAs = options.interpretAs || options["interpret-as"];
     util_default.optionsInject(this, options, {}, {
@@ -773,7 +773,7 @@ var SayAs_default = SayAs;
 
 // src/elements/Sentence.ts
 var Sentence = class extends Element_default {
-  constructor(options, type = ElementTypes_default.Sentence) {
+  constructor(options = {}, type = ElementTypes_default.Sentence) {
     super(options, type);
   }
   render(parent, provider) {
@@ -785,7 +785,7 @@ var Sentence_default = Sentence;
 // src/elements/Subsitute.ts
 var Subsitute = class extends Element_default {
   alias = "";
-  constructor(options, type = ElementTypes_default.Subsitute) {
+  constructor(options = {}, type = ElementTypes_default.Subsitute) {
     super(options, type);
     util_default.optionsInject(this, options, {}, {
       alias: (v) => util_default.isString(v)
@@ -806,7 +806,7 @@ var Voice = class extends Element_default {
   age;
   variant;
   language;
-  constructor(options, type = ElementTypes_default.Voice) {
+  constructor(options = {}, type = ElementTypes_default.Voice) {
     super(options, type);
     options.gender = options.gender || options["xml:gender"];
     options.language = options.language || options["xml:lang"];
@@ -839,7 +839,7 @@ var Voice_default = Voice;
 
 // src/elements/Word.ts
 var Word = class extends Element_default {
-  constructor(options, type = ElementTypes_default.Word) {
+  constructor(options = {}, type = ElementTypes_default.Word) {
     super(options, type);
   }
   render(parent, provider) {
@@ -853,7 +853,7 @@ var ExpressAs = class extends Element_default {
   style = "";
   styledegree;
   role;
-  constructor(options, type = ElementTypes_default.ExpressAs) {
+  constructor(options = {}, type = ElementTypes_default.ExpressAs) {
     super(options, type);
     util_default.optionsInject(this, options, {
       styledegree: (v) => !util_default.isUndefined(v) ? Number(v) : v
@@ -882,7 +882,7 @@ var ExpressAs_default = ExpressAs;
 var Silence = class extends Element_default {
   _type = "";
   _value = "";
-  constructor(options, type = ElementTypes_default.Silence) {
+  constructor(options = {}, type = ElementTypes_default.Silence) {
     super(options, type);
     options._type = options.type;
     options._value = options.value;

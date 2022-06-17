@@ -11,7 +11,7 @@ class Silence extends Element {
     public _type = '';  //指定静音位置
     public _value = '';  //暂停的绝对持续时间
 
-    constructor(options: ISilenceOptions, type = ElementTypes.Silence) {
+    constructor(options: ISilenceOptions = {}, type = ElementTypes.Silence) {
         super(options, type);
         options._type = options.type;
         options._value = options.value;

@@ -12,7 +12,7 @@ class SayAs extends Element {
     public format?: string;  //文本指定格式
     public detail?: string;  //朗读的详细信息级别
 
-    constructor(options: ISayAsOptions, type = ElementTypes.SayAs) {
+    constructor(options: ISayAsOptions = {}, type = ElementTypes.SayAs) {
         super(options, type);
         options.interpretAs = options.interpretAs || options["interpret-as"];
         util.optionsInject(this, options, {}, {

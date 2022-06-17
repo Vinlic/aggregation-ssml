@@ -80,7 +80,7 @@ interface IDocumentOptions {
 }
 
 declare class Raw extends Element {
-    constructor(options: IElementOptions, type?: ElementTypes);
+    constructor(options?: IElementOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
     toText(): string;
 }
@@ -91,7 +91,7 @@ interface IAudioOptions extends IElementOptions {
 
 declare class Audio extends Element {
     src: string;
-    constructor(options: IAudioOptions, type?: ElementTypes);
+    constructor(options?: IAudioOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
 }
 
@@ -107,7 +107,7 @@ declare class BackgroundAudio extends Element {
     volume: number;
     fadeIn?: number;
     fadeOut?: number;
-    constructor(options: IBackgroundAudioOptions, type?: ElementTypes);
+    constructor(options?: IBackgroundAudioOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
 }
 
@@ -117,7 +117,7 @@ interface IBookmarkOptions extends IElementOptions {
 
 declare class Bookmark extends Element {
     mark: string;
-    constructor(options: IBookmarkOptions, type?: ElementTypes);
+    constructor(options?: IBookmarkOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
 }
 
@@ -129,7 +129,7 @@ interface IBreakOptions extends IElementOptions {
 declare class Break extends Element {
     strength?: string;
     time: string;
-    constructor(options: IBreakOptions, type?: ElementTypes);
+    constructor(options?: IBreakOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
     get duration(): number;
 }
@@ -140,7 +140,7 @@ interface ILanguageOptions$1 extends IElementOptions {
 
 declare class Language extends Element {
     language: string;
-    constructor(options: ILanguageOptions$1, type?: ElementTypes);
+    constructor(options?: ILanguageOptions$1, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
 }
 
@@ -150,7 +150,7 @@ interface ILexiconOptions extends IElementOptions {
 
 declare class Lexicon extends Element {
     uri: string;
-    constructor(options: ILexiconOptions, type?: ElementTypes);
+    constructor(options?: ILexiconOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
 }
 
@@ -158,7 +158,7 @@ interface IParagraphOptions extends IElementOptions {
 }
 
 declare class Paragraph extends Element {
-    constructor(options: IParagraphOptions, type?: ElementTypes);
+    constructor(options?: IParagraphOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
 }
 
@@ -170,7 +170,7 @@ interface ILanguageOptions extends IElementOptions {
 declare class Phoneme extends Element {
     alphabet: string;
     ph?: string;
-    constructor(options: ILanguageOptions, type?: ElementTypes);
+    constructor(options?: ILanguageOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
     private pinyin2sapi;
     private pinyinConvert;
@@ -192,7 +192,7 @@ declare class Prosody extends Element {
     rate?: number;
     duration?: string;
     volume?: number;
-    constructor(options: IProsodyOptions, type?: ElementTypes);
+    constructor(options?: IProsodyOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
 }
 
@@ -207,7 +207,7 @@ declare class SayAs extends Element {
     interpretAs: string;
     format?: string;
     detail?: string;
-    constructor(options: ISayAsOptions, type?: ElementTypes);
+    constructor(options?: ISayAsOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
 }
 
@@ -215,7 +215,7 @@ interface ISentenceOptions extends IElementOptions {
 }
 
 declare class Sentence extends Element {
-    constructor(options: ISentenceOptions, type?: ElementTypes);
+    constructor(options?: ISentenceOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
 }
 
@@ -225,7 +225,7 @@ interface ISubsituteOptions extends IElementOptions {
 
 declare class Subsitute extends Element {
     alias: string;
-    constructor(options: ISubsituteOptions, type?: ElementTypes);
+    constructor(options?: ISubsituteOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
 }
 
@@ -245,7 +245,7 @@ declare class Voice extends Element {
     age?: number;
     variant?: string;
     language?: string;
-    constructor(options: IVoiceOptions, type?: ElementTypes);
+    constructor(options?: IVoiceOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
 }
 
@@ -253,7 +253,7 @@ interface IWordOptions extends IElementOptions {
 }
 
 declare class Word extends Element {
-    constructor(options: IWordOptions, type?: ElementTypes);
+    constructor(options?: IWordOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
 }
 
@@ -267,7 +267,7 @@ declare class ExpressAs extends Element {
     style: string;
     styledegree?: number;
     role?: string;
-    constructor(options: IExpressAsOptions, type?: ElementTypes);
+    constructor(options?: IExpressAsOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
 }
 
@@ -282,7 +282,7 @@ interface ISilenceOptions {
 declare class Silence extends Element {
     _type: string;
     _value: string;
-    constructor(options: ISilenceOptions, type?: ElementTypes);
+    constructor(options?: ISilenceOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
 }
 

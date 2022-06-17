@@ -10,7 +10,7 @@ class Bookmark extends Element {
 
     public mark = '';  //引用文本
 
-    constructor(options: IBookmarkOptions, type = ElementTypes.Bookmark) {
+    constructor(options: IBookmarkOptions = {}, type = ElementTypes.Bookmark) {
         super(options, type);
         util.optionsInject(this, options, {}, {
             mark: (v: any) => util.isString(v)
