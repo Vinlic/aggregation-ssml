@@ -38,7 +38,7 @@ class Document {
         if(!util.isObject(options)) throw new TypeError('options must be an object');
         util.optionsInject(this, options, {
             type: () => 'document',
-            provider: (v: any) => !util.isUndefined(v) ? v as Providers : v,
+            provider: (v: any) => util.defaultTo(v, Providers.Aliyun),
             realProvider: (v: any) => !util.isUndefined(v) ? v as Providers : v,
             version: (v: any) => util.defaultTo(v, '1.0'),
             language: (v: any) => util.defaultTo(v, 'zh-cn'),

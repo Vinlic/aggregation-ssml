@@ -984,7 +984,7 @@ var _Document = class {
       throw new TypeError("options must be an object");
     util_default.optionsInject(this, options, {
       type: () => "document",
-      provider: (v) => !util_default.isUndefined(v) ? v : v,
+      provider: (v) => util_default.defaultTo(v, Providers_default.Aliyun),
       realProvider: (v) => !util_default.isUndefined(v) ? v : v,
       version: (v) => util_default.defaultTo(v, "1.0"),
       language: (v) => util_default.defaultTo(v, "zh-cn"),
