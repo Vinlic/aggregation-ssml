@@ -125,19 +125,19 @@ class Document {
                 this.effect && speak.att("effect", this.effect);
                 this.effectValue && speak.att("effectValue", this.effectValue);
                 if(prosody) {
-                    if(prosody.rate) {
+                    if(!util.isUndefined(prosody.rate)) {
                         const rate = prosody.rate * 500 - 500;
                         speak.att("rate", (rate > 500 ? 500 : rate).toString());
                     }
-                    if(prosody.pitch) {
+                    if(!util.isUndefined(prosody.pitch)) {
                         const pitch = prosody.pitch * 500 - 500;
                         speak.att("pitch", (pitch > 500 ? 500 : pitch).toString());
                     }
-                    prosody.volume && speak.att("volume", parseInt((prosody.volume / 2).toString()).toString());
+                    !util.isUndefined(prosody.volume) && speak.att("volume", parseInt((prosody.volume / 2).toString()).toString());
                 }
                 if(backgroundAudio) {
                     speak.att("bgm", backgroundAudio.src);
-                    backgroundAudio.volume && speak.att("volume", parseInt((backgroundAudio.volume * 100 / 2).toString()).toString());
+                    !util.isUndefined(backgroundAudio.volume) && speak.att("volume", parseInt((backgroundAudio.volume * 100 / 2).toString()).toString());
                 }
             break;
             case Providers.Microsoft:
