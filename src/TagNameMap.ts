@@ -51,6 +51,7 @@ export default {
         [ElementTypes.Break]: "break",
         [ElementTypes.Phoneme]: 'phoneme',
         [ElementTypes.SayAs]: "say-as",
-        [ElementTypes.Prosody]: 'prosody'
+        [ElementTypes.Prosody]: 'prosody',
+        [ElementTypes.Action]: "insert-action"
     }
 } as any;

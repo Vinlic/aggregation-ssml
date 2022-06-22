@@ -117,7 +117,7 @@ class Element {
     public toTimeline(timeline: any[], baseTime = 0, provider: Providers, declaimer: string, speechRate: number): any {
         this.children.forEach((node: any) => {
             const latestIndex = timeline.length ? timeline.length - 1 : 0;
-            if (node.type === ElementTypes.Break) {
+            if ([ElementTypes.Break, ElementTypes.Action].includes(node.type)) {
                 timeline[latestIndex].incomplete = true;
                 timeline[latestIndex].endTime += node.duration;
             }

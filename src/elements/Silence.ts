@@ -8,16 +8,14 @@ import util from '../util';
 
 class Silence extends Element {
 
-    public _type = '';  //指定静音位置
-    public _value = '';  //暂停的绝对持续时间
+    public __type = '';  //指定静音位置
+    public __value = '';  //暂停的绝对持续时间
 
     constructor(options: ISilenceOptions = {}, type = ElementTypes.Silence) {
         super(options, type);
-        options._type = options.type;
-        options._value = options.value;
         util.optionsInject(this, options, {}, {
-            _type: (v: any) => util.isString(v),
-            _value: (v: any) => util.isString(v)
+            __type: (v: any) => util.isString(v),
+            __value: (v: any) => util.isString(v)
         });
     }
 
@@ -26,8 +24,8 @@ class Silence extends Element {
         switch (provider) {
             case Providers.Aggregation:
             case Providers.Microsoft:
-                element.att("type", this._type);
-                element.att("value", this._value);
+                element.att("type", this.__type);
+                element.att("value", this.__value);
                 break;
         }
         return element;

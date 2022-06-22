@@ -23,7 +23,9 @@ enum ElementTypes {
     "mstts:express-as" = "mstts:express-as",
     ExpressAs = "expressAs",
     "mstts:silence" = "mstts:silence",
-    Silence = "silence"
+    Silence = "silence",
+    Action = "action",
+    "insert-action" = "insert-action",
 };
 
 export default ElementTypes;

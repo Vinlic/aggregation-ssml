@@ -23,7 +23,9 @@ declare enum ElementTypes {
     "mstts:express-as" = "mstts:express-as",
     ExpressAs = "expressAs",
     "mstts:silence" = "mstts:silence",
-    Silence = "silence"
+    Silence = "silence",
+    Action = "action",
+    "insert-action" = "insert-action"
 }
 
 declare enum Providers {
@@ -280,10 +282,21 @@ interface ISilenceOptions {
 }
 
 declare class Silence extends Element {
-    _type: string;
-    _value: string;
+    __type: string;
+    __value: string;
     constructor(options?: ISilenceOptions, type?: ElementTypes);
     render(parent: any, provider: Providers): any;
+}
+
+interface IActionOptions extends IElementOptions {
+    _type?: string;
+}
+
+declare class Action extends Element {
+    __type: string;
+    constructor(options?: IActionOptions, type?: ElementTypes);
+    render(parent: any, provider: Providers): any;
+    get duration(): number;
 }
 
 type index_Element = Element;
@@ -322,6 +335,8 @@ type index_ExpressAs = ExpressAs;
 declare const index_ExpressAs: typeof ExpressAs;
 type index_Silence = Silence;
 declare const index_Silence: typeof Silence;
+type index_Action = Action;
+declare const index_Action: typeof Action;
 declare namespace index {
   export {
     index_Element as Element,
@@ -342,6 +357,7 @@ declare namespace index {
     index_Word as Word,
     index_ExpressAs as ExpressAs,
     index_Silence as Silence,
+    index_Action as Action,
   };
 }
 

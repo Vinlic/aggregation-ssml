@@ -2,7 +2,7 @@ import IElementOptions from './elements/interface/IElementOptions';
 
 import ElementTypes from './enums/ElementTypes';
 
-import { Element, Raw, Audio, BackgroundAudio, Bookmark, Break, Language, Lexicon, Paragraph, Phoneme, Prosody, SayAs, Sentence, Subsitute, Voice, Word, ExpressAs, Silence } from './elements';
+import { Element, Raw, Audio, BackgroundAudio, Bookmark, Break, Language, Lexicon, Paragraph, Phoneme, Prosody, SayAs, Sentence, Subsitute, Voice, Word, ExpressAs, Silence, Action } from './elements';
 import util from './util';
 
 class ElementFactory {
@@ -56,6 +56,9 @@ class ElementFactory {
             case ElementTypes["mstts:silence"]:
             case ElementTypes.Silence:
                 return new Silence(data);
+            case ElementTypes["insert-action"]:
+            case ElementTypes.Action:
+                return new Action(data);
         }
         return new Element(data);
     }

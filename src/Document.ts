@@ -160,8 +160,13 @@ class Document {
         function parse(obj: any, target: any = {}) {
             const type = Object.keys(obj)[0];
             target.type = type;
-            for (let key in obj[':@'])
-                target[key] = obj[':@'][key];
+            for (let key in obj[':@']) {
+                const targetKey = {
+                    type: "__type",
+                    value: "__value"
+                }[key] || key;
+                target[targetKey] = obj[':@'][key];
+            }
             target.children = [];
             obj[type].forEach((v: any) => {
                 if (v['#text']) return target.children.push({ type: "raw", value: v['#text'] });

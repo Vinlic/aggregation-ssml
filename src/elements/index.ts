@@ -16,3 +16,4 @@ export { default as Voice } from './Voice';
 export { default as Word } from './Word';
 export { default as ExpressAs } from './ExpressAs';
 export { default as Silence } from './Silence';
+export { default as Action } from './Action';

@@ -75,6 +75,8 @@ var ElementTypes = /* @__PURE__ */ ((ElementTypes2) => {
   ElementTypes2["ExpressAs"] = "expressAs";
   ElementTypes2["mstts:silence"] = "mstts:silence";
   ElementTypes2["Silence"] = "silence";
+  ElementTypes2["Action"] = "action";
+  ElementTypes2["insert-action"] = "insert-action";
   return ElementTypes2;
 })(ElementTypes || {});
 var ElementTypes_default = ElementTypes;
@@ -82,6 +84,7 @@ var ElementTypes_default = ElementTypes;
 // src/elements/index.ts
 var elements_exports = {};
 __export(elements_exports, {
+  Action: () => Action_default,
   Audio: () => Audio_default,
   BackgroundAudio: () => BackgroundAudio_default,
   Bookmark: () => Bookmark_default,
@@ -169,7 +172,8 @@ var TagNameMap_default = {
     [ElementTypes_default.Break]: "break",
     [ElementTypes_default.Phoneme]: "phoneme",
     [ElementTypes_default.SayAs]: "say-as",
-    [ElementTypes_default.Prosody]: "prosody"
+    [ElementTypes_default.Prosody]: "prosody",
+    [ElementTypes_default.Action]: "insert-action"
   }
 };
 
@@ -178,7 +182,7 @@ import lodash from "lodash";
 var util_default = __spreadProps(__spreadValues({}, lodash), {
   optionsInject(that, options, initializers = {}, checkers = {}) {
     Object.keys(that).forEach((key) => {
-      if (/^\_/.test(key))
+      if (/^_/.test(key) && !/^__/.test(key))
         return;
       let value = options[key];
       if (this.isFunction(initializers[key]))
@@ -366,7 +370,7 @@ var _Element = class {
   toTimeline(timeline, baseTime = 0, provider, declaimer, speechRate) {
     this.children.forEach((node) => {
       const latestIndex = timeline.length ? timeline.length - 1 : 0;
-      if (node.type === ElementTypes_default.Break) {
+      if ([ElementTypes_default.Break, ElementTypes_default.Action].includes(node.type)) {
         timeline[latestIndex].incomplete = true;
         timeline[latestIndex].endTime += node.duration;
       } else if (node.type === ElementTypes_default.Raw) {
@@ -880,15 +884,13 @@ var ExpressAs_default = ExpressAs;
 
 // src/elements/Silence.ts
 var Silence = class extends Element_default {
-  _type = "";
-  _value = "";
+  __type = "";
+  __value = "";
   constructor(options = {}, type = ElementTypes_default.Silence) {
     super(options, type);
-    options._type = options.type;
-    options._value = options.value;
     util_default.optionsInject(this, options, {}, {
-      _type: (v) => util_default.isString(v),
-      _value: (v) => util_default.isString(v)
+      __type: (v) => util_default.isString(v),
+      __value: (v) => util_default.isString(v)
     });
   }
   render(parent, provider) {
@@ -896,14 +898,34 @@ var Silence = class extends Element_default {
     switch (provider) {
       case Providers_default.Aggregation:
       case Providers_default.Microsoft:
-        element.att("type", this._type);
-        element.att("value", this._value);
+        element.att("type", this.__type);
+        element.att("value", this.__value);
         break;
     }
     return element;
   }
 };
 var Silence_default = Silence;
+
+// src/elements/Action.ts
+var Action = class extends Element_default {
+  __type = "";
+  constructor(options = {}, type = ElementTypes_default.Action) {
+    super(options, type);
+    util_default.optionsInject(this, options, {}, {
+      __type: (v) => util_default.isString(v)
+    });
+  }
+  render(parent, provider) {
+    const element = super.render(parent, provider);
+    element.att("type", this.__type);
+    return element;
+  }
+  get duration() {
+    return {}[this.__type] || 5e3;
+  }
+};
+var Action_default = Action;
 
 // src/ElementFactory.ts
 var ElementFactory = class {
@@ -952,6 +974,9 @@ var ElementFactory = class {
       case ElementTypes_default["mstts:silence"]:
       case ElementTypes_default.Silence:
         return new Silence_default(data);
+      case ElementTypes_default["insert-action"]:
+      case ElementTypes_default.Action:
+        return new Action_default(data);
     }
     return new Element_default(data);
   }
@@ -1102,8 +1127,13 @@ var _Document = class {
     function parse(obj, target = {}) {
       const type = Object.keys(obj)[0];
       target.type = type;
-      for (let key in obj[":@"])
-        target[key] = obj[":@"][key];
+      for (let key in obj[":@"]) {
+        const targetKey = {
+          type: "__type",
+          value: "__value"
+        }[key] || key;
+        target[targetKey] = obj[":@"][key];
+      }
       target.children = [];
       obj[type].forEach((v) => {
         if (v["#text"])
