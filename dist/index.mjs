@@ -372,9 +372,11 @@ var _Element = class {
       const latestIndex = timeline.length ? timeline.length - 1 : 0;
       if ([ElementTypes_default.Break, ElementTypes_default.Action].includes(node.type)) {
         if (!timeline[latestIndex])
-          timeline[latestIndex] = { text: "", startTime: baseTime, endTime: baseTime };
-        timeline[latestIndex].incomplete = true;
-        timeline[latestIndex].endTime += node.duration;
+          timeline[latestIndex] = { text: "", startTime: baseTime + node.duration, endTime: baseTime };
+        else {
+          timeline[latestIndex].incomplete = true;
+          timeline[latestIndex].endTime += node.duration;
+        }
       } else if (node.type === ElementTypes_default.Raw) {
         if (!node.value)
           return;

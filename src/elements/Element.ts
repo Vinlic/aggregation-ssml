@@ -102,7 +102,7 @@ class Element {
         chars.forEach(char => {
             if (char === "%")
                 textDuration += fullCharDuration * 3;
-            else if(splitSymbols.indexOf(char) !== -1)
+            else if (splitSymbols.indexOf(char) !== -1)
                 textDuration += halfCharDuration;
             else
                 textDuration += fullCharDuration;
@@ -119,9 +119,11 @@ class Element {
             const latestIndex = timeline.length ? timeline.length - 1 : 0;
             if ([ElementTypes.Break, ElementTypes.Action].includes(node.type)) {
                 if (!timeline[latestIndex])
-                    timeline[latestIndex] = { text: "", startTime: baseTime, endTime: baseTime };
-                timeline[latestIndex].incomplete = true;
-                timeline[latestIndex].endTime += node.duration;
+                    timeline[latestIndex] = { text: "", startTime: baseTime + node.duration, endTime: baseTime };
+                else {
+                    timeline[latestIndex].incomplete = true;
+                    timeline[latestIndex].endTime += node.duration;
+                }
             }
             else if (node.type === ElementTypes.Raw) {
                 if (!node.value) return;
