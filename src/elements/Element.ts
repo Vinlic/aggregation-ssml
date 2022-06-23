@@ -118,6 +118,8 @@ class Element {
         this.children.forEach((node: any) => {
             const latestIndex = timeline.length ? timeline.length - 1 : 0;
             if ([ElementTypes.Break, ElementTypes.Action].includes(node.type)) {
+                if (!timeline[latestIndex])
+                    timeline[latestIndex] = { text: "", startTime: baseTime, endTime: baseTime };
                 timeline[latestIndex].incomplete = true;
                 timeline[latestIndex].endTime += node.duration;
             }
