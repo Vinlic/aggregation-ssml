@@ -20,10 +20,11 @@ class Break extends Element {
             strength: (v: any) => util.isUndefined(v) || util.isString(v),
             time: (v: any) => util.isString(v)
         });
-        this.children = [];  //清除子元素
     }
 
     render(parent: any, provider: Providers) {
+        if(provider !== Providers.Aggregation)
+            this.children = [];  //非聚合服务商则清除子元素
         const element = super.render(parent, provider);
         element.att("time", this.time);
         switch(provider) {

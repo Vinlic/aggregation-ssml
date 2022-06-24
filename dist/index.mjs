@@ -520,9 +520,10 @@ var Break = class extends Element_default {
       strength: (v) => util_default.isUndefined(v) || util_default.isString(v),
       time: (v) => util_default.isString(v)
     });
-    this.children = [];
   }
   render(parent, provider) {
+    if (provider !== Providers_default.Aggregation)
+      this.children = [];
     const element = super.render(parent, provider);
     element.att("time", this.time);
     switch (provider) {
