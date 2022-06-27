@@ -48,6 +48,7 @@ export default {
     },
     [Providers.YunXiaoWei]: {
         [ElementTypes.Word]: 'w',
+        [ElementTypes.Sentence]: 'w',
         [ElementTypes.Break]: "break",
         [ElementTypes.Phoneme]: 'phoneme',
         [ElementTypes.SayAs]: "say-as",

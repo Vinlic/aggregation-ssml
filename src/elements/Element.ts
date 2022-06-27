@@ -6,7 +6,6 @@ import Providers from '../enums/Providers';
 import ElementFactory from '../ElementFactory';
 import TagNameMap from '../TagNameMap';
 import Document from '../Document';
-import { Break } from '../elements';
 import util from '../util';
 
 const splitSymbols = [",", "，", "。", "!", "！", ";", "；", ":", "："];
@@ -37,17 +36,13 @@ class Element {
         });
     }
 
-    public find(path: string) {
-        const keys = path.split(".");
-        let that: Element | undefined = this;
-        keys.forEach(key => {
-            if (!util.isObject(that)) {
-                that = undefined;
-                return;
-            }
-            that = that.children.find((v: Element) => v.type == key);
-        });
-        return that;
+    public find(key: string) {
+        for(let node of this.children) {
+            if(node.type === key)
+                return node;
+            node.find(key);
+        }
+        return null;
     }
 
     public appendChild(node: Element) {
@@ -100,7 +95,7 @@ class Element {
                 fullCharDuration = 200;
         }
         chars.forEach(char => {
-            if (char === "%")
+            if (char === "%" || char === "。")
                 textDuration += fullCharDuration * 3;
             else if (splitSymbols.indexOf(char) !== -1)
                 textDuration += halfCharDuration;

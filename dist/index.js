@@ -192,6 +192,7 @@ var TagNameMap_default = {
   },
   [Providers_default.YunXiaoWei]: {
     [ElementTypes_default.Word]: "w",
+    [ElementTypes_default.Sentence]: "w",
     [ElementTypes_default.Break]: "break",
     [ElementTypes_default.Phoneme]: "phoneme",
     [ElementTypes_default.SayAs]: "say-as",
@@ -318,17 +319,13 @@ var _Element = class {
       children: (v) => util_default.isArray(v)
     });
   }
-  find(path) {
-    const keys = path.split(".");
-    let that = this;
-    keys.forEach((key) => {
-      if (!util_default.isObject(that)) {
-        that = void 0;
-        return;
-      }
-      that = that.children.find((v) => v.type == key);
-    });
-    return that;
+  find(key) {
+    for (let node of this.children) {
+      if (node.type === key)
+        return node;
+      node.find(key);
+    }
+    return null;
   }
   appendChild(node) {
     if (!_Element.isInstance(node))
@@ -378,7 +375,7 @@ var _Element = class {
         fullCharDuration = 200;
     }
     chars.forEach((char) => {
-      if (char === "%")
+      if (char === "%" || char === "\u3002")
         textDuration += fullCharDuration * 3;
       else if (splitSymbols.indexOf(char) !== -1)
         textDuration += halfCharDuration;
@@ -1062,17 +1059,13 @@ var _Document = class {
       children: (v) => util_default.isArray(v)
     });
   }
-  find(path) {
-    const keys = path.split(".");
-    let that = this;
-    keys.forEach((key) => {
-      if (!util_default.isObject(that)) {
-        that = void 0;
-        return;
-      }
-      that = that.children.find((v) => v.type == key);
-    });
-    return that;
+  find(key) {
+    for (let node of this.children) {
+      if (node.type === key)
+        return node;
+      node.find(key);
+    }
+    return null;
   }
   appendChild(node) {
     if (!Element_default.isInstance(node))
@@ -1086,7 +1079,10 @@ var _Document = class {
   toTimeline(baseTime = 0) {
     const timeline = [];
     this.children.forEach((node) => node.toTimeline(timeline, baseTime, this.provider, this.declaimer, this.speechRate));
-    return timeline[0] && timeline[0].text ? timeline : timeline.slice(1);
+    const exportTimeline = timeline[0] && timeline[0].text ? timeline : timeline.slice(1);
+    if (exportTimeline[0])
+      exportTimeline[exportTimeline.length - 1].endTime += 500;
+    return exportTimeline;
   }
   toSSML(pretty = false) {
     const root = (0, import_xmlbuilder2.create)();
@@ -1180,13 +1176,13 @@ var _Document = class {
     return voice ? voice.name || "" : "";
   }
   get volume() {
-    const prosody = this.find("voice.prosody");
+    const prosody = this.find("prosody");
     if (!prosody)
       return 100;
     return prosody.volume !== void 0 ? prosody.volume : 100;
   }
   get speechRate() {
-    const prosody = this.find("voice.prosody");
+    const prosody = this.find("prosody");
     if (!prosody)
       return 1;
     return prosody.rate !== void 0 ? prosody.rate : 1;

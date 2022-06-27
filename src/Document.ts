@@ -67,17 +67,13 @@ class Document {
         });
     }
 
-    public find(path: string): Document | Element | undefined {
-        const keys = path.split(".");
-        let that: Document | Element | undefined = this;
-        keys.forEach(key => {
-            if(!util.isObject(that)) {
-                that = undefined;
-                return;
-            }
-            that = that.children.find((v: Element) => v.type == key);
-        });
-        return that;
+    public find(key: string) {
+        for(let node of this.children) {
+            if(node.type === key)
+                return node;
+            node.find(key);
+        }
+        return null;
     }
 
     public appendChild(node: Element) {
@@ -94,7 +90,10 @@ class Document {
     public toTimeline(baseTime = 0) {
         const timeline: any[] = [];
         this.children.forEach(node => node.toTimeline(timeline, baseTime, this.provider, this.declaimer, this.speechRate));
-        return timeline[0] && timeline[0].text ? timeline : timeline.slice(1);
+        const exportTimeline = timeline[0] && timeline[0].text ? timeline : timeline.slice(1);
+        if(exportTimeline[0])
+            exportTimeline[exportTimeline.length - 1].endTime += 500;
+        return exportTimeline;
     }
 
     public toSSML(pretty = false) {
@@ -186,13 +185,13 @@ class Document {
     }
 
     get volume() {
-        const prosody = this.find("voice.prosody") as Prosody;
+        const prosody = this.find("prosody") as Prosody;
         if(!prosody) return 100;
         return prosody.volume !== undefined ? prosody.volume : 100;
     }
 
     get speechRate() {
-        const prosody = this.find("voice.prosody") as Prosody;
+        const prosody = this.find("prosody") as Prosody;
         if(!prosody) return 1;
         return prosody.rate !== undefined ? prosody.rate : 1;
     }

@@ -48,7 +48,7 @@ declare class Element {
     value?: string;
     children: Element[];
     constructor(options?: IElementOptions, type?: ElementTypes);
-    find(path: string): Element;
+    find(key: string): Element | null;
     appendChild(node: Element): void;
     render(parent: any, provider: Providers): any;
     splitText(value: string): string[];
@@ -377,7 +377,7 @@ declare class Document {
     sampleRate?: string;
     children: Element[];
     constructor(options: IDocumentOptions);
-    find(path: string): Document | Element | undefined;
+    find(key: string): Element | null;
     appendChild(node: Element): void;
     toText(): string;
     toTimeline(baseTime?: number): any[];
