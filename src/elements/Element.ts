@@ -77,69 +77,61 @@ class Element {
         return texts;
     }
 
-    public parseTextDuration(text: string, provider: Providers, declaimer: string, speechRate: number) {
+    public parseTextDuration(text: string, provider: Providers, declaimer: string, speechRate: number, correctMap: any = {}) {
         const factor = 2 - speechRate;
-        let textDuration = 0;
         const chars = text.split("");
-        let halfCharDuration = 0, fullCharDuration = 0, splitSymbolDuration = 0;
-        switch (provider) {
-            case Providers.Aliyun:
-                halfCharDuration = 100;
-                fullCharDuration = 220;
-                break;
-            case Providers.Microsoft:
-                halfCharDuration = 80;
-                fullCharDuration = 180;
-            default:
-                halfCharDuration = 100;
-                fullCharDuration = 200;
+        let textDuration = 0, halfCharDuration = 0, fullCharDuration = 0, bigCharDuration = 0, pauseDuration = 0;
+        let correctObject = correctMap[provider];
+        if(!correctObject || (!correctObject.default && !correctObject[declaimer])) {
+            halfCharDuration = 100;
+            fullCharDuration = 200;
+            bigCharDuration = fullCharDuration * 3;
         }
-        chars.forEach(char => {
+        else
+            ({ halfCharDuration, fullCharDuration, bigCharDuration } = (correctObject[declaimer] || correctObject.default));
+        chars.forEach((char, index) => {
+            let duration;
             if (char === "%" || char === "。")
-                textDuration += fullCharDuration * 3;
+                duration = bigCharDuration;
             else if (splitSymbols.indexOf(char) !== -1)
-                textDuration += halfCharDuration;
+                duration = halfCharDuration;
             else
-                textDuration += fullCharDuration;
+                duration = fullCharDuration;
+            if(index === chars.length - 1)
+                return pauseDuration = duration;
+            textDuration += duration;
         });
-        return textDuration * factor;
+        return {
+            textDuration: textDuration * factor,
+            pauseDuration: pauseDuration * factor
+        };
     }
 
     public toText(): string {
         return this.children.reduce((result, node) => result + node.toText(), "");
     }
 
-    public toTimeline(timeline: any[], baseTime = 0, provider: Providers, declaimer: string, speechRate: number): any {
+    public toTimeline(timeline: any[], baseTime = 0, provider: Providers, declaimer: string, speechRate: number, correctMap?: any): any {
+        let offsetDuration = 0;
         this.children.forEach((node: any) => {
             const latestIndex = timeline.length ? timeline.length - 1 : 0;
-            if ([ElementTypes.Break, ElementTypes.Action].includes(node.type)) {
-                if (!timeline[latestIndex])
-                    timeline[latestIndex] = { text: "", startTime: baseTime + node.duration, endTime: baseTime };
-                else {
-                    timeline[latestIndex].incomplete = true;
-                    timeline[latestIndex].endTime += node.duration;
-                }
-            }
+            if ([ElementTypes.Break, ElementTypes.Action].includes(node.type))
+                offsetDuration = node.duration;
             else if (node.type === ElementTypes.Raw) {
                 if (!node.value) return;
                 let texts = this.splitText(node.value.replace(/\n/g, ""));
                 if (!timeline[latestIndex])
                     timeline[latestIndex] = { text: "", startTime: baseTime, endTime: baseTime };
-                if (texts.length === 1 || timeline[latestIndex].incomplete) {
-                    timeline[latestIndex].incomplete && delete timeline[latestIndex].incomplete;
-                    timeline[latestIndex].text += texts[0];
-                    timeline[latestIndex].endTime += this.parseTextDuration(texts[0], provider, declaimer, speechRate);
-                    texts = texts.slice(1);
-                }
-                let currentTime = timeline[latestIndex].endTime;
+                let currentTime = timeline[latestIndex].endTime + offsetDuration;
+                offsetDuration = 0;
                 texts.forEach(text => {
-                    const duration = this.parseTextDuration(text, provider, declaimer, speechRate);
+                    const { textDuration, pauseDuration } = this.parseTextDuration(text, provider, declaimer, speechRate, correctMap);
                     timeline.push({
                         text,
                         startTime: currentTime,
-                        endTime: currentTime + duration
+                        endTime: currentTime + textDuration
                     });
-                    currentTime += duration;
+                    currentTime += textDuration + pauseDuration;
                 });
             }
             else

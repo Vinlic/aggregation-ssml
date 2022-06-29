@@ -52,9 +52,12 @@ declare class Element {
     appendChild(node: Element): void;
     render(parent: any, provider: Providers): any;
     splitText(value: string): string[];
-    parseTextDuration(text: string, provider: Providers, declaimer: string, speechRate: number): number;
+    parseTextDuration(text: string, provider: Providers, declaimer: string, speechRate: number, correctMap?: any): {
+        textDuration: number;
+        pauseDuration: number;
+    };
     toText(): string;
-    toTimeline(timeline: any[], baseTime: number | undefined, provider: Providers, declaimer: string, speechRate: number): any;
+    toTimeline(timeline: any[], baseTime: number | undefined, provider: Providers, declaimer: string, speechRate: number, correctMap?: any): any;
     static isInstance(value: any): boolean;
     set parent(obj: Document | Element | undefined);
     get parent(): Document | Element | undefined;
@@ -79,6 +82,7 @@ interface IDocumentOptions {
     format?: string;
     sampleRate?: string;
     children?: (Element | IElementOptions)[];
+    correctMap?: any;
 }
 
 declare class Raw extends Element {
@@ -376,7 +380,8 @@ declare class Document {
     format: string;
     sampleRate?: string;
     children: Element[];
-    constructor(options: IDocumentOptions);
+    private correctMap?;
+    constructor(options: IDocumentOptions, correctMap?: any);
     find(key: string): Element | null;
     appendChild(node: Element): void;
     toText(): string;

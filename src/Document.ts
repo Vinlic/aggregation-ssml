@@ -33,8 +33,9 @@ class Document {
     public format = '';  //发音音频文件格式
     public sampleRate?: string;  //发音音频采样率
     public children: Element[] = [];  //文档子元素
+    private correctMap?: any;  //文档时间轴纠正映射
 
-    constructor(options: IDocumentOptions) {
+    constructor(options: IDocumentOptions, correctMap?: any) {
         if(!util.isObject(options)) throw new TypeError('options must be an object');
         util.optionsInject(this, options, {
             type: () => 'document',
@@ -65,6 +66,7 @@ class Document {
             sampleRate: (v: any) => util.isUndefined(v) || util.isString(v),
             children: (v: any) => util.isArray(v)
         });
+        this.correctMap = correctMap;
     }
 
     public find(key: string) {
@@ -89,7 +91,7 @@ class Document {
 
     public toTimeline(baseTime = 0) {
         const timeline: any[] = [];
-        this.children.forEach(node => node.toTimeline(timeline, baseTime, this.provider, this.declaimer, this.speechRate));
+        this.children.forEach(node => node.toTimeline(timeline, baseTime, this.provider, this.declaimer, this.speechRate, this.correctMap));
         const exportTimeline = timeline[0] && timeline[0].text ? timeline : timeline.slice(1);
         if(exportTimeline[0])
             exportTimeline[exportTimeline.length - 1].endTime += 500;

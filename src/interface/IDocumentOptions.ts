@@ -15,6 +15,7 @@ interface IDocumentOptions {
     format?: string;
     sampleRate?: string;
     children?: (Element | IElementOptions)[];
+    correctMap?: any;
 }
 
 export default IDocumentOptions;
