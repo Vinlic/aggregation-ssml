@@ -149,10 +149,10 @@ class Document {
         return speak.end({ prettyPrint: pretty, headless: true });
     }
 
-    public static parse(content: any, provider?: Providers) {
+    public static parse(content: any, provider?: Providers, correctMap?: any) {
         if (!util.isString(content) && !util.isObject(content)) throw new TypeError('content must be an string or object');
-        if (util.isObject(content)) return new Document(content);
-        if (!/\<speak/.test(content)) return new Document(JSON.parse(content));
+        if (util.isObject(content)) return new Document(content, correctMap);
+        if (!/\<speak/.test(content)) return new Document(JSON.parse(content), correctMap);
         let xmlObject: any;
         xmlParser.parse(content).forEach((o: any) => {
             if (o.speak) xmlObject = o;
@@ -178,7 +178,7 @@ class Document {
         }
         const options = parse(xmlObject);
         provider && (options.provider = provider);
-        return new Document(options);
+        return new Document(options, correctMap);
     }
 
     get declaimer() {

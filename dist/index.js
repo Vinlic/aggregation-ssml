@@ -201,6 +201,31 @@ var TagNameMap_default = {
   }
 };
 
+// src/CorrectMap.ts
+var CorrectMap_default = {
+  [Providers_default.YunXiaoWei]: {
+    default: {
+      halfCharDuration: 100,
+      fullCharDuration: 220,
+      bigCharDuration: 880
+    }
+  },
+  [Providers_default.Aliyun]: {
+    default: {
+      halfCharDuration: 100,
+      fullCharDuration: 220,
+      bigCharDuration: 880
+    }
+  },
+  [Providers_default.Microsoft]: {
+    default: {
+      halfCharDuration: 80,
+      fullCharDuration: 180,
+      bigCharDuration: 540
+    }
+  }
+};
+
 // src/util.ts
 var import_lodash = __toESM(require("lodash"));
 var util_default = __spreadProps(__spreadValues({}, import_lodash.default), {
@@ -361,7 +386,7 @@ var _Element = class {
     const factor = 2 - speechRate;
     const chars = text.split("");
     let textDuration = 0, halfCharDuration = 0, fullCharDuration = 0, bigCharDuration = 0, pauseDuration = 0;
-    let correctObject = correctMap[provider];
+    const correctObject = correctMap[provider];
     if (!correctObject || !correctObject.default && !correctObject[declaimer]) {
       halfCharDuration = 100;
       fullCharDuration = 200;
@@ -390,6 +415,7 @@ var _Element = class {
   }
   toTimeline(timeline, baseTime = 0, provider, declaimer, speechRate, correctMap) {
     let offsetDuration = 0;
+    correctMap = util_default.merge(CorrectMap_default, correctMap);
     this.children.forEach((node) => {
       const latestIndex = timeline.length ? timeline.length - 1 : 0;
       if ([ElementTypes_default.Break, ElementTypes_default.Action].includes(node.type))
@@ -1128,13 +1154,13 @@ var _Document = class {
     this.children.forEach((node) => node.render(speak, this.provider));
     return speak.end({ prettyPrint: pretty, headless: true });
   }
-  static parse(content, provider) {
+  static parse(content, provider, correctMap) {
     if (!util_default.isString(content) && !util_default.isObject(content))
       throw new TypeError("content must be an string or object");
     if (util_default.isObject(content))
-      return new _Document(content);
+      return new _Document(content, correctMap);
     if (!/\<speak/.test(content))
-      return new _Document(JSON.parse(content));
+      return new _Document(JSON.parse(content), correctMap);
     let xmlObject;
     xmlParser.parse(content).forEach((o) => {
       if (o.speak)
@@ -1163,7 +1189,7 @@ var _Document = class {
     }
     const options = parse(xmlObject);
     provider && (options.provider = provider);
-    return new _Document(options);
+    return new _Document(options, correctMap);
   }
   get declaimer() {
     const voice = this.find("voice");

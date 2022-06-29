@@ -387,7 +387,7 @@ declare class Document {
     toText(): string;
     toTimeline(baseTime?: number): any[];
     toSSML(pretty?: boolean): string;
-    static parse(content: any, provider?: Providers): Document;
+    static parse(content: any, provider?: Providers, correctMap?: any): Document;
     get declaimer(): string;
     get volume(): number;
     get speechRate(): number;
