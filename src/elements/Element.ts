@@ -5,7 +5,6 @@ import Providers from '../enums/Providers';
 
 import ElementFactory from '../ElementFactory';
 import TagNameMap from '../TagNameMap';
-import CorrectMap from '../CorrectMap';
 import Document from '../Document';
 import util from '../util';
 
@@ -78,7 +77,7 @@ class Element {
         return texts;
     }
 
-    public parseTextDuration(text: string, provider: Providers, declaimer: string, speechRate: number, correctMap: any = {}) {
+    public parseTextDuration(text: string, provider: Providers, declaimer: string, speechRate: number, correctMap?: any) {
         const factor = 2 - speechRate;
         const chars = text.split("");
         let textDuration = 0, halfCharDuration = 0, fullCharDuration = 0, bigCharDuration = 0, pauseDuration = 0;
@@ -114,7 +113,6 @@ class Element {
 
     public toTimeline(timeline: any[], baseTime = 0, provider: Providers, declaimer: string, speechRate: number, correctMap?: any): any {
         let offsetDuration = 0;
-        correctMap = util.merge(CorrectMap, correctMap);
         this.children.forEach((node: any) => {
             const latestIndex = timeline.length ? timeline.length - 1 : 0;
             if ([ElementTypes.Break, ElementTypes.Action].includes(node.type))
@@ -137,7 +135,7 @@ class Element {
                 });
             }
             else
-                node.toTimeline(timeline, baseTime, provider, declaimer, speechRate);
+                node.toTimeline(timeline, baseTime, provider, declaimer, speechRate, correctMap);
         });
         return timeline;
     }

@@ -3,23 +3,23 @@ import Providers from './enums/Providers';
 export default {
     [Providers.YunXiaoWei]: {
         default: {
-            halfCharDuration: 100,
-            fullCharDuration: 220,
-            bigCharDuration: 880
+            halfCharDuration: 80,
+            fullCharDuration: 230,
+            bigCharDuration: 930
         }
     },
     [Providers.Aliyun]: {
         default: {
-            halfCharDuration: 100,
-            fullCharDuration: 220,
-            bigCharDuration: 880
+            halfCharDuration: 80,
+            fullCharDuration: 190,
+            bigCharDuration: 930
         }
     },
     [Providers.Microsoft]: {
         default: {
             halfCharDuration: 80,
-            fullCharDuration: 180,
-            bigCharDuration: 540
+            fullCharDuration: 230,
+            bigCharDuration: 950
         }
     }
 } as any;

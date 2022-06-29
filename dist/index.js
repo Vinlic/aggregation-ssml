@@ -201,31 +201,6 @@ var TagNameMap_default = {
   }
 };
 
-// src/CorrectMap.ts
-var CorrectMap_default = {
-  [Providers_default.YunXiaoWei]: {
-    default: {
-      halfCharDuration: 100,
-      fullCharDuration: 220,
-      bigCharDuration: 880
-    }
-  },
-  [Providers_default.Aliyun]: {
-    default: {
-      halfCharDuration: 100,
-      fullCharDuration: 220,
-      bigCharDuration: 880
-    }
-  },
-  [Providers_default.Microsoft]: {
-    default: {
-      halfCharDuration: 80,
-      fullCharDuration: 180,
-      bigCharDuration: 540
-    }
-  }
-};
-
 // src/util.ts
 var import_lodash = __toESM(require("lodash"));
 var util_default = __spreadProps(__spreadValues({}, import_lodash.default), {
@@ -382,7 +357,7 @@ var _Element = class {
     }
     return texts;
   }
-  parseTextDuration(text, provider, declaimer, speechRate, correctMap = {}) {
+  parseTextDuration(text, provider, declaimer, speechRate, correctMap) {
     const factor = 2 - speechRate;
     const chars = text.split("");
     let textDuration = 0, halfCharDuration = 0, fullCharDuration = 0, bigCharDuration = 0, pauseDuration = 0;
@@ -415,7 +390,6 @@ var _Element = class {
   }
   toTimeline(timeline, baseTime = 0, provider, declaimer, speechRate, correctMap) {
     let offsetDuration = 0;
-    correctMap = util_default.merge(CorrectMap_default, correctMap);
     this.children.forEach((node) => {
       const latestIndex = timeline.length ? timeline.length - 1 : 0;
       if ([ElementTypes_default.Break, ElementTypes_default.Action].includes(node.type))
@@ -438,7 +412,7 @@ var _Element = class {
           currentTime += textDuration + pauseDuration;
         });
       } else
-        node.toTimeline(timeline, baseTime, provider, declaimer, speechRate);
+        node.toTimeline(timeline, baseTime, provider, declaimer, speechRate, correctMap);
     });
     return timeline;
   }
@@ -1026,6 +1000,31 @@ var ElementFactory = class {
 };
 var ElementFactory_default = ElementFactory;
 
+// src/CorrectMap.ts
+var CorrectMap_default = {
+  [Providers_default.YunXiaoWei]: {
+    default: {
+      halfCharDuration: 80,
+      fullCharDuration: 230,
+      bigCharDuration: 930
+    }
+  },
+  [Providers_default.Aliyun]: {
+    default: {
+      halfCharDuration: 80,
+      fullCharDuration: 190,
+      bigCharDuration: 930
+    }
+  },
+  [Providers_default.Microsoft]: {
+    default: {
+      halfCharDuration: 80,
+      fullCharDuration: 230,
+      bigCharDuration: 950
+    }
+  }
+};
+
 // src/Document.ts
 var xmlParser = new import_fast_xml_parser.XMLParser({
   allowBooleanAttributes: true,
@@ -1098,7 +1097,7 @@ var _Document = class {
   }
   toTimeline(baseTime = 0) {
     const timeline = [];
-    this.children.forEach((node) => node.toTimeline(timeline, baseTime, this.provider, this.declaimer, this.speechRate, this.correctMap));
+    this.children.forEach((node) => node.toTimeline(timeline, baseTime, this.provider, this.declaimer, this.speechRate, util_default.merge(CorrectMap_default, this.correctMap || {})));
     const exportTimeline = timeline[0] && timeline[0].text ? timeline : timeline.slice(1);
     if (exportTimeline[0])
       exportTimeline[exportTimeline.length - 1].endTime += 500;

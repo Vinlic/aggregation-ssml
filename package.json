@@ -1,6 +1,6 @@
 {
   "name": "aggregation-ssml",
-  "version": "1.0.86",
+  "version": "1.0.881",
   "description": "Aggregation SSML",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

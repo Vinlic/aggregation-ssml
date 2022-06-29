@@ -5,6 +5,7 @@ import IDocumentOptions from './interface/IDocumentOptions';
 import IElementOptions from './elements/interface/IElementOptions';
 
 import ElementFactory from './ElementFactory';
+import CorrectMap from './CorrectMap';
 import { BackgroundAudio, Element, Prosody, Voice } from './elements';
 import Providers from './enums/Providers';
 import util from './util';
@@ -91,7 +92,7 @@ class Document {
 
     public toTimeline(baseTime = 0) {
         const timeline: any[] = [];
-        this.children.forEach(node => node.toTimeline(timeline, baseTime, this.provider, this.declaimer, this.speechRate, this.correctMap));
+        this.children.forEach(node => node.toTimeline(timeline, baseTime, this.provider, this.declaimer, this.speechRate,  util.merge(CorrectMap, this.correctMap || {})));
         const exportTimeline = timeline[0] && timeline[0].text ? timeline : timeline.slice(1);
         if(exportTimeline[0])
             exportTimeline[exportTimeline.length - 1].endTime += 500;
