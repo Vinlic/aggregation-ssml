@@ -147,7 +147,7 @@ class Document {
             break;
         }
         this.children.forEach(node => node.render(speak, this.provider));
-        return speak.end({ prettyPrint: pretty, headless: true });
+        return speak.end({ prettyPrint: pretty, headless: true }).replace(/&lt;/g, "<").replace(/&gt;/g, ">");
     }
 
     public static parse(content: any, provider?: Providers, correctMap?: any) {

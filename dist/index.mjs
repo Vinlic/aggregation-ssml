@@ -1128,7 +1128,7 @@ var _Document = class {
         break;
     }
     this.children.forEach((node) => node.render(speak, this.provider));
-    return speak.end({ prettyPrint: pretty, headless: true });
+    return speak.end({ prettyPrint: pretty, headless: true }).replace(/&lt;/g, "<").replace(/&gt;/g, ">");
   }
   static parse(content, provider, correctMap) {
     if (!util_default.isString(content) && !util_default.isObject(content))
