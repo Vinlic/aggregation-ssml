@@ -1,5 +1,4 @@
 import { create } from 'xmlbuilder2';
-import { XMLParser } from 'fast-xml-parser';
 
 import IDocumentOptions from './interface/IDocumentOptions';
 import IElementOptions from './elements/interface/IElementOptions';
@@ -8,15 +7,8 @@ import ElementFactory from './ElementFactory';
 import CorrectMap from './CorrectMap';
 import { BackgroundAudio, Element, Prosody, Voice } from './elements';
 import Providers from './enums/Providers';
+import Parser from './Parser';
 import util from './util';
-
-const xmlParser = new XMLParser({
-    allowBooleanAttributes: true, //需要解析布尔值属性
-    ignoreAttributes: false, //不要忽略属性
-    attributeNamePrefix: '', //属性名称不拼接前缀
-    preserveOrder: true, //保持原始文档标签顺序
-    parseTagValue: false //不解析标签内值
-});
 
 class Document {
     public static Provider = Providers;
@@ -37,7 +29,7 @@ class Document {
     private correctMap?: any;  //文档时间轴纠正映射
 
     constructor(options: IDocumentOptions, correctMap?: any) {
-        if(!util.isObject(options)) throw new TypeError('options must be an object');
+        if (!util.isObject(options)) throw new TypeError('options must be an object');
         util.optionsInject(this, options, {
             type: () => 'document',
             provider: (v: any) => util.defaultTo(v, Providers.Aliyun),
@@ -71,10 +63,11 @@ class Document {
     }
 
     public find(key: string) {
-        for(let node of this.children) {
-            if(node.type === key)
+        for (let node of this.children) {
+            if (node.type === key)
                 return node;
-            node.find(key);
+            const foundNode = node.find(key);
+            if(foundNode) return foundNode;
         }
         return null;
     }
@@ -92,9 +85,9 @@ class Document {
 
     public toTimeline(baseTime = 0) {
         const timeline: any[] = [];
-        this.children.forEach(node => node.toTimeline(timeline, baseTime, this.provider, this.declaimer, this.speechRate,  util.merge(CorrectMap, this.correctMap || {})));
+        this.children.forEach(node => node.toTimeline(timeline, baseTime, this.provider, this.declaimer, this.speechRate, util.merge(CorrectMap, this.correctMap || {})));
         const exportTimeline = timeline[0] && timeline[0].text ? timeline : timeline.slice(1);
-        if(exportTimeline[0])
+        if (exportTimeline[0])
             exportTimeline[exportTimeline.length - 1].endTime += 500;
         return exportTimeline;
     }
@@ -105,7 +98,7 @@ class Document {
         speak.att('version', this.version);
         speak.att("xml:lang", this.language);
         speak.att("xmlns", this.xmlns);
-        switch(this.provider) {
+        switch (this.provider) {
             case Providers.Aggregation:
                 speak.att('provider', this.realProvider || this.provider);  //使用真实的提供商
                 this.solution && speak.att('solution', this.solution);
@@ -113,11 +106,11 @@ class Document {
                 this.sampleRate && speak.att("sampleRate", this.sampleRate);
                 this.effect && speak.att("effect", this.effect);
                 this.effectValue && speak.att("effectValue", this.effectValue);
-            break;
+                break;
             case Providers.Aliyun:
                 const voice = this.find("voice") as Voice;
                 let prosody, backgroundAudio;
-                if(voice) {
+                if (voice) {
                     prosody = (voice.find("prosody") || this.find("prosody")) as Prosody;
                     backgroundAudio = (voice.find("backgroundaudio") || this.find("backgroundaudio")) as BackgroundAudio;
                     voice.name && speak.att("voice", voice.name);
@@ -126,61 +119,31 @@ class Document {
                 this.sampleRate && speak.att("sampleRate", this.sampleRate);
                 this.effect && speak.att("effect", this.effect);
                 this.effectValue && speak.att("effectValue", this.effectValue);
-                if(prosody) {
-                    if(!util.isUndefined(prosody.rate)) {
+                if (prosody) {
+                    if (!util.isUndefined(prosody.rate)) {
                         const rate = prosody.rate * 500 - 500;
                         speak.att("rate", (rate > 500 ? 500 : rate).toString());
                     }
-                    if(!util.isUndefined(prosody.pitch)) {
+                    if (!util.isUndefined(prosody.pitch)) {
                         const pitch = prosody.pitch * 500 - 500;
                         speak.att("pitch", (pitch > 500 ? 500 : pitch).toString());
                     }
                     !util.isUndefined(prosody.volume) && speak.att("volume", parseInt((prosody.volume / 2).toString()).toString());
                 }
-                if(backgroundAudio) {
+                if (backgroundAudio) {
                     speak.att("bgm", backgroundAudio.src);
                     !util.isUndefined(backgroundAudio.volume) && speak.att("volume", parseInt((backgroundAudio.volume * 100 / 2).toString()).toString());
                 }
-            break;
+                break;
             case Providers.Microsoft:
                 speak.att("xmlns:mstts", "https://www.w3.org/2001/mstts");
-            break;
+                break;
         }
         this.children.forEach(node => node.render(speak, this.provider));
         return speak.end({ prettyPrint: pretty, headless: true }).replace(/&lt;/g, "<").replace(/&gt;/g, ">");
     }
 
-    public static parse(content: any, provider?: Providers, correctMap?: any) {
-        if (!util.isString(content) && !util.isObject(content)) throw new TypeError('content must be an string or object');
-        if (util.isObject(content)) return new Document(content, correctMap);
-        if (!/\<speak/.test(content)) return new Document(JSON.parse(content), correctMap);
-        let xmlObject: any;
-        xmlParser.parse(content).forEach((o: any) => {
-            if (o.speak) xmlObject = o;
-        });
-        if (!xmlObject) throw new Error('document ssml invalid');
-        function parse(obj: any, target: any = {}) {
-            const type = Object.keys(obj)[0];
-            target.type = type;
-            for (let key in obj[':@']) {
-                const targetKey = {
-                    type: "__type",
-                    value: "__value"
-                }[key] || key;
-                target[targetKey] = obj[':@'][key];
-            }
-            target.children = [];
-            obj[type].forEach((v: any) => {
-                if (v['#text']) return target.children.push({ type: "raw", value: v['#text'] });
-                const result = parse(v, {});
-                result && target.children.push(result);
-            });
-            return target;
-        }
-        const options = parse(xmlObject);
-        provider && (options.provider = provider);
-        return new Document(options, correctMap);
-    }
+    public static parse = Parser.parse.bind(Parser);
 
     get declaimer() {
         const voice = this.find("voice") as Voice;
@@ -189,13 +152,13 @@ class Document {
 
     get volume() {
         const prosody = this.find("prosody") as Prosody;
-        if(!prosody) return 100;
+        if (!prosody) return 100;
         return prosody.volume !== undefined ? prosody.volume : 100;
     }
 
     get speechRate() {
         const prosody = this.find("prosody") as Prosody;
-        if(!prosody) return 1;
+        if (!prosody) return 1;
         return prosody.rate !== undefined ? prosody.rate : 1;
     }
 

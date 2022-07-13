@@ -56,9 +56,8 @@ export default {
     const minutes = Math.floor((sec - hours * 3600) / 60);
     const seconds = sec - hours * 3600 - minutes * 60;
     const ms = ((milliseconds as number) % 60000) - seconds * 1000;
-    return `${hours > 9 ? hours : '0' + hours}:${minutes > 9 ? minutes : '0' + minutes}:${
-      seconds > 9 ? seconds : '0' + seconds
-    }.${ms}`;
+    return `${hours > 9 ? hours : '0' + hours}:${minutes > 9 ? minutes : '0' + minutes}:${seconds > 9 ? seconds : '0' + seconds
+      }.${ms}`;
   },
 
   millisecondsToSenconds(milliseconds: number, precision: number = 3): number {
@@ -66,7 +65,7 @@ export default {
   },
 
   timeStringToMilliseconds(timeString: string) {
-    switch(true) {
+    switch (true) {
       case /ms$/.test(timeString):
         return parseInt(timeString);
       case /s$/.test(timeString):
@@ -86,7 +85,7 @@ export default {
   },
 
   decodeBASE64(value: any) {
-    if(!this.isString(value))
+    if (!this.isString(value))
       throw new TypeError("value must be an string");
     return typeof Buffer !== "undefined" ? Buffer.from(value, "base64").toString() : decodeURIComponent(escape(atob(value)));
   },
@@ -103,4 +102,23 @@ export default {
         return false;
     }
   },
+
+  convertXMLObject(obj: any, target: any = {}) {
+    const type = Object.keys(obj)[0];
+    target.type = type;
+    for (let key in obj[':@']) {
+      const targetKey = {
+        type: "__type",
+        value: "__value"
+      }[key] || key;
+      target[targetKey] = obj[':@'][key];
+    }
+    target.children = [];
+    obj[type].forEach((v: any) => {
+      if (v['#text']) return target.children.push({ type: "raw", value: v['#text'] });
+      const result = this.convertXMLObject(v, {});
+      result && target.children.push(result);
+    });
+    return target;
+  }
 };

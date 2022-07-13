@@ -41,6 +41,12 @@ declare enum Providers {
     XiangXinGAN = "xiangXinGAN"
 }
 
+declare class Parser {
+    static parse(content: any, provider?: Providers, correctMap?: any): Document;
+    static parseElement(content: string): Element;
+    private static convertXMLObject;
+}
+
 declare class Element {
     #private;
     static Type: typeof ElementTypes;
@@ -59,6 +65,7 @@ declare class Element {
     toText(): string;
     toTimeline(timeline: any[], baseTime: number | undefined, provider: Providers, declaimer: string, speechRate: number, correctMap?: any): any;
     static isInstance(value: any): boolean;
+    static parse: typeof Parser.parseElement;
     set parent(obj: Document | Element | undefined);
     get parent(): Document | Element | undefined;
 }
@@ -387,7 +394,7 @@ declare class Document {
     toText(): string;
     toTimeline(baseTime?: number): any[];
     toSSML(pretty?: boolean): string;
-    static parse(content: any, provider?: Providers, correctMap?: any): Document;
+    static parse: typeof Parser.parse;
     get declaimer(): string;
     get volume(): number;
     get speechRate(): number;

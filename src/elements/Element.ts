@@ -1,3 +1,5 @@
+import { create } from 'xmlbuilder2';
+
 import IElementOptions from './interface/IElementOptions';
 
 import ElementTypes from '../enums/ElementTypes';
@@ -6,6 +8,7 @@ import Providers from '../enums/Providers';
 import ElementFactory from '../ElementFactory';
 import TagNameMap from '../TagNameMap';
 import Document from '../Document';
+import Parser from '../Parser';
 import util from '../util';
 
 const splitSymbols = [",", "，", "。", "!", "！", ";", "；", ":", "："];
@@ -36,11 +39,12 @@ class Element {
         });
     }
 
-    public find(key: string) {
+    public find(key: string): Element | null {
         for(let node of this.children) {
             if(node.type === key)
                 return node;
-            node.find(key);
+            const foundNode = node.find(key);
+            if(foundNode) return foundNode;
         }
         return null;
     }
@@ -48,8 +52,8 @@ class Element {
     public appendChild(node: Element) {
         if (!Element.isInstance(node))
             throw new TypeError('node must be an Element instance');
-        node.parent = this;
-        this.children.push(node);
+        (node as Element).parent = this;
+        this.children.push(node as Element);
     }
 
     public render(parent: any, provider: Providers) {
@@ -143,6 +147,8 @@ class Element {
     public static isInstance(value: any) {
         return value instanceof Element;
     }
+
+    public static parse = Parser.parseElement.bind(Parser);
 
     public set parent(obj: Document | Element | undefined) {
         this.#parent = obj;

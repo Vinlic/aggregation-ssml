@@ -46,7 +46,6 @@ var __privateSet = (obj, member, value, setter) => {
 
 // src/Document.ts
 import { create } from "xmlbuilder2";
-import { XMLParser } from "fast-xml-parser";
 
 // src/enums/ElementTypes.ts
 var ElementTypes = /* @__PURE__ */ ((ElementTypes2) => {
@@ -178,6 +177,9 @@ var TagNameMap_default = {
   }
 };
 
+// src/Parser.ts
+import { XMLParser } from "fast-xml-parser";
+
 // src/util.ts
 import lodash from "lodash";
 var util_default = __spreadProps(__spreadValues({}, lodash), {
@@ -270,8 +272,83 @@ var util_default = __spreadProps(__spreadValues({}, lodash), {
       default:
         return false;
     }
+  },
+  convertXMLObject(obj, target = {}) {
+    const type = Object.keys(obj)[0];
+    target.type = type;
+    for (let key in obj[":@"]) {
+      const targetKey = {
+        type: "__type",
+        value: "__value"
+      }[key] || key;
+      target[targetKey] = obj[":@"][key];
+    }
+    target.children = [];
+    obj[type].forEach((v) => {
+      if (v["#text"])
+        return target.children.push({ type: "raw", value: v["#text"] });
+      const result = this.convertXMLObject(v, {});
+      result && target.children.push(result);
+    });
+    return target;
   }
 });
+
+// src/Parser.ts
+var xmlParser = new XMLParser({
+  allowBooleanAttributes: true,
+  ignoreAttributes: false,
+  attributeNamePrefix: "",
+  preserveOrder: true,
+  parseTagValue: false
+});
+var Parser = class {
+  static parse(content, provider, correctMap) {
+    if (!util_default.isString(content) && !util_default.isObject(content))
+      throw new TypeError("content must be an string or object");
+    if (util_default.isObject(content))
+      return new Document_default(content, correctMap);
+    if (/^\{/.test(content))
+      return new Document_default(JSON.parse(content), correctMap);
+    let xmlObject;
+    xmlParser.parse(content).forEach((o) => {
+      if (o.speak)
+        xmlObject = o;
+    });
+    if (!xmlObject)
+      throw new Error("root tag not found");
+    const options = this.convertXMLObject(xmlObject);
+    provider && (options.provider = provider);
+    return new Document_default(options, correctMap);
+  }
+  static parseElement(content) {
+    const xmlObject = xmlParser.parse(content)[0];
+    if (!xmlObject)
+      throw new Error("root tag not found");
+    const options = this.convertXMLObject(xmlObject);
+    return ElementFactory_default.createElement(options);
+  }
+  static convertXMLObject(obj, target = {}) {
+    const type = Object.keys(obj)[0];
+    target.type = type;
+    for (let key in obj[":@"]) {
+      const targetKey = {
+        type: "__type",
+        value: "__value"
+      }[key] || key;
+      target[targetKey] = obj[":@"][key];
+    }
+    target.children = [];
+    obj[type].forEach((v) => {
+      if (v["#text"])
+        return target.children.push({ type: "raw", value: v["#text"] });
+      const result = this.convertXMLObject(v, {});
+      result && target.children.push(result);
+    });
+    return target;
+  }
+};
+var Parser_default = Parser;
 
 // src/elements/Element.ts
 var splitSymbols = [",", "\uFF0C", "\u3002", "!", "\uFF01", ";", "\uFF1B", ":", "\uFF1A"];
@@ -300,7 +377,9 @@ var _Element = class {
     for (let node of this.children) {
       if (node.type === key)
         return node;
-      node.find(key);
+      const foundNode = node.find(key);
+      if (foundNode)
+        return foundNode;
     }
     return null;
   }
@@ -406,6 +485,7 @@ var _Element = class {
 var Element = _Element;
 _parent = new WeakMap();
 __publicField(Element, "Type", ElementTypes_default);
+__publicField(Element, "parse", Parser_default.parseElement.bind(Parser_default));
 var Element_default = Element;
 
 // src/elements/Raw.ts
@@ -1003,14 +1083,7 @@ var CorrectMap_default = {
 };
 
 // src/Document.ts
-var xmlParser = new XMLParser({
-  allowBooleanAttributes: true,
-  ignoreAttributes: false,
-  attributeNamePrefix: "",
-  preserveOrder: true,
-  parseTagValue: false
-});
-var _Document = class {
+var Document = class {
   type = "";
   provider = Providers_default.Aggregation;
   realProvider;
@@ -1059,7 +1132,9 @@ var _Document = class {
     for (let node of this.children) {
       if (node.type === key)
         return node;
-      node.find(key);
+      const foundNode = node.find(key);
+      if (foundNode)
+        return foundNode;
     }
     return null;
   }
@@ -1130,43 +1205,6 @@ var _Document = class {
     this.children.forEach((node) => node.render(speak, this.provider));
     return speak.end({ prettyPrint: pretty, headless: true }).replace(/&lt;/g, "<").replace(/&gt;/g, ">");
   }
-  static parse(content, provider, correctMap) {
-    if (!util_default.isString(content) && !util_default.isObject(content))
-      throw new TypeError("content must be an string or object");
-    if (util_default.isObject(content))
-      return new _Document(content, correctMap);
-    if (!/\<speak/.test(content))
-      return new _Document(JSON.parse(content), correctMap);
-    let xmlObject;
-    xmlParser.parse(content).forEach((o) => {
-      if (o.speak)
-        xmlObject = o;
-    });
-    if (!xmlObject)
-      throw new Error("document ssml invalid");
-    function parse(obj, target = {}) {
-      const type = Object.keys(obj)[0];
-      target.type = type;
-      for (let key in obj[":@"]) {
-        const targetKey = {
-          type: "__type",
-          value: "__value"
-        }[key] || key;
-        target[targetKey] = obj[":@"][key];
-      }
-      target.children = [];
-      obj[type].forEach((v) => {
-        if (v["#text"])
-          return target.children.push({ type: "raw", value: v["#text"] });
-        const result = parse(v, {});
-        result && target.children.push(result);
-      });
-      return target;
-    }
-    const options = parse(xmlObject);
-    provider && (options.provider = provider);
-    return new _Document(options, correctMap);
-  }
   get declaimer() {
     const voice = this.find("voice");
     return voice ? voice.name || "" : "";
@@ -1188,9 +1226,9 @@ var _Document = class {
     return timeline[timeline.length - 1] ? timeline[timeline.length - 1].endTime : 0;
   }
 };
-var Document = _Document;
 __publicField(Document, "Provider", Providers_default);
 __publicField(Document, "type", "document");
+__publicField(Document, "parse", Parser_default.parse.bind(Parser_default));
 var Document_default = Document;
 export {
   Document_default as Document,
