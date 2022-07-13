@@ -93,8 +93,7 @@ class Document {
     }
 
     public toSSML(pretty = false) {
-        const root = create();
-        const speak = root.ele('speak');
+        const speak = create().ele('speak');
         speak.att('version', this.version);
         speak.att("xml:lang", this.language);
         speak.att("xmlns", this.xmlns);

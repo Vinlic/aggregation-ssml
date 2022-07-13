@@ -66,6 +66,7 @@ declare class Element {
     toTimeline(timeline: any[], baseTime: number | undefined, provider: Providers, declaimer: string, speechRate: number, correctMap?: any): any;
     static isInstance(value: any): boolean;
     static parse: typeof Parser.parseElement;
+    toSSML(provider: Providers, pretty?: boolean): string;
     set parent(obj: Document | Element | undefined);
     get parent(): Document | Element | undefined;
 }

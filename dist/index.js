@@ -68,7 +68,7 @@ __export(src_exports, {
 module.exports = __toCommonJS(src_exports);
 
 // src/Document.ts
-var import_xmlbuilder2 = require("xmlbuilder2");
+var import_xmlbuilder22 = require("xmlbuilder2");
 
 // src/enums/ElementTypes.ts
 var ElementTypes = /* @__PURE__ */ ((ElementTypes2) => {
@@ -126,6 +126,9 @@ __export(elements_exports, {
   Voice: () => Voice_default,
   Word: () => Word_default
 });
+
+// src/elements/Element.ts
+var import_xmlbuilder2 = require("xmlbuilder2");
 
 // src/enums/Providers.ts
 var Providers = /* @__PURE__ */ ((Providers2) => {
@@ -497,6 +500,15 @@ var _Element = class {
   }
   static isInstance(value) {
     return value instanceof _Element;
+  }
+  toSSML(provider, pretty = false) {
+    const tagName = TagNameMap_default[provider] ? TagNameMap_default[provider][this.type] : null;
+    const element = (0, import_xmlbuilder2.create)().ele(tagName || "raw");
+    this.children.forEach((node) => node.render(element, provider));
+    const ssml = element.end({ prettyPrint: pretty, headless: true }).replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+    if (!tagName)
+      return ssml.replace(/^<raw>/, "").replace(/<\/raw>$/, "");
+    return ssml;
   }
   set parent(obj) {
     __privateSet(this, _parent, obj);
@@ -1179,8 +1191,7 @@ var Document = class {
     return exportTimeline;
   }
   toSSML(pretty = false) {
-    const root = (0, import_xmlbuilder2.create)();
-    const speak = root.ele("speak");
+    const speak = (0, import_xmlbuilder22.create)().ele("speak");
     speak.att("version", this.version);
     speak.att("xml:lang", this.language);
     speak.att("xmlns", this.xmlns);

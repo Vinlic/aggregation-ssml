@@ -150,6 +150,16 @@ class Element {
 
     public static parse = Parser.parseElement.bind(Parser);
 
+    public toSSML(provider: Providers, pretty = false) {
+        const tagName = TagNameMap[provider] ? TagNameMap[provider][this.type] : null;
+        const element = create().ele(tagName || "raw");
+        this.children.forEach(node => node.render(element, provider));
+        const ssml = element.end({ prettyPrint: pretty, headless: true }).replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+        if(!tagName)
+            return ssml.replace(/^<raw>/, "").replace(/<\/raw>$/, "");
+        return ssml;
+    }
+
     public set parent(obj: Document | Element | undefined) {
         this.#parent = obj;
     }
