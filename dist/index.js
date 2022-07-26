@@ -487,7 +487,7 @@ var _Element = class {
         texts.forEach((text) => {
           const { textDuration, pauseDuration } = this.parseTextDuration(text, provider, declaimer, speechRate, correctMap);
           timeline.push({
-            text,
+            text: text.substring(0, text.length - 1),
             startTime: currentTime,
             endTime: currentTime + textDuration
           });
