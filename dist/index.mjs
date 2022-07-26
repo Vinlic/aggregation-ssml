@@ -410,7 +410,7 @@ var _Element = class {
           return Infinity;
         return index;
       }));
-      const temp = value.substring(searchIndex, foundIndex);
+      const temp = value.substring(searchIndex, foundIndex + 1);
       temp && texts.push(temp);
       searchIndex = foundIndex + 1;
     }
@@ -1161,7 +1161,7 @@ var Document = class {
   }
   toTimeline(baseTime = 0) {
     const timeline = [];
-    this.children.forEach((node) => node.toTimeline(timeline, baseTime, this.provider, this.declaimer, this.speechRate, util_default.merge(CorrectMap_default, this.correctMap || {})));
+    this.children.forEach((node) => node.toTimeline(timeline, baseTime, this.realProvider || this.provider, this.declaimer, this.speechRate, util_default.merge(CorrectMap_default, this.correctMap || {})));
     const exportTimeline = timeline[0] && timeline[0].text ? timeline : timeline.slice(1);
     if (exportTimeline[0])
       exportTimeline[exportTimeline.length - 1].endTime += 500;

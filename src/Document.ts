@@ -85,7 +85,7 @@ class Document {
 
     public toTimeline(baseTime = 0) {
         const timeline: any[] = [];
-        this.children.forEach(node => node.toTimeline(timeline, baseTime, this.provider, this.declaimer, this.speechRate, util.merge(CorrectMap, this.correctMap || {})));
+        this.children.forEach(node => node.toTimeline(timeline, baseTime, this.realProvider || this.provider, this.declaimer, this.speechRate, util.merge(CorrectMap, this.correctMap || {})));
         const exportTimeline = timeline[0] && timeline[0].text ? timeline : timeline.slice(1);
         if (exportTimeline[0])
             exportTimeline[exportTimeline.length - 1].endTime += 500;
